@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/PawelWielga/dihor-ha-components/compare/v4.1.0...v4.2.0) (2026-05-17)
+
+
+### Features
+
+* **person:** add two-column device layout ([00f2d1c](https://github.com/PawelWielga/dihor-ha-components/commit/00f2d1cd401293d8c51b384fad3f239ecacd3ade))
+
 # [4.1.0](https://github.com/PawelWielga/dihor-ha-components/compare/v4.0.6...v4.1.0) (2026-05-17)
 
 
