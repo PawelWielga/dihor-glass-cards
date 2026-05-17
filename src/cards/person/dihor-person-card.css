@@ -13,16 +13,44 @@
 }
 
 .person-card-content {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: calc(var(--dihor-content-gap) * 0.85);
+  justify-content: stretch;
+  gap: var(--dihor-content-gap);
   padding: calc(var(--dihor-card-padding) * 0.75) var(--dihor-card-padding);
   height: 100%;
   min-width: 0;
   min-height: 0;
   box-sizing: border-box;
+}
+
+.person-profile-column,
+.person-device-column {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.person-profile-column {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: calc(var(--dihor-content-gap) * 0.85);
+}
+
+.person-device-column {
+  display: grid;
+  align-content: center;
+  justify-items: stretch;
+}
+
+.person-device-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
 }
 
 .person-avatar-wrap {
@@ -117,10 +145,10 @@
   overflow-wrap: anywhere;
 }
 
-.person-meta {
+.person-phone,
+.person-battery {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 5px;
   max-width: 100%;
   min-width: 0;
@@ -130,23 +158,35 @@
   color: var(--dihor-subtitle-color);
 }
 
-.person-meta ha-icon {
-  flex: 0 0 auto;
-  --mdc-icon-size: 15px;
-  width: 15px;
-  height: 15px;
+.person-phone {
+  justify-content: flex-start;
 }
 
-.person-meta span {
+.person-battery {
+  justify-content: flex-end;
+  color: var(--dihor-title-color);
+  white-space: nowrap;
+}
+
+.person-battery.is-charging {
+  color: var(--dihor-badge-online-bg);
+}
+
+.person-phone ha-icon,
+.person-battery ha-icon {
+  flex: 0 0 auto;
+  --mdc-icon-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.person-phone span,
+.person-battery span {
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.person-battery {
-  color: var(--dihor-title-color);
 }
 
 .person-updated {
@@ -163,5 +203,16 @@
 @supports not (background: color-mix(in srgb, white, black)) {
   .person-status-dot {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@media (max-width: 360px) {
+  .person-card-content {
+    grid-template-columns: 1fr;
+  }
+
+  .person-device-row {
+    max-width: 13rem;
+    justify-self: center;
   }
 }

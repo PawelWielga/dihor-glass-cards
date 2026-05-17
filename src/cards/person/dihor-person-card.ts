@@ -9,7 +9,9 @@ export interface PersonCardConfig extends BaseCardConfig {
   icon?: string;
   phone_entity?: string;
   phone_name?: string;
+  phone_platform?: string;
   battery_entity?: string;
+  battery_charging_entity?: string;
   show_entity_picture?: boolean;
   show_name?: boolean;
   show_state?: boolean;
@@ -90,11 +92,39 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
           },
         },
         {
+          name: 'phone_platform',
+          selector: {
+            select: {
+              mode: 'dropdown',
+              options: [
+                {
+                  value: 'auto',
+                  label: 'Auto',
+                },
+                {
+                  value: 'android',
+                  label: 'Android',
+                },
+                {
+                  value: 'iphone',
+                  label: 'iPhone',
+                },
+              ],
+            },
+          },
+        },
+        {
           name: 'battery_entity',
           selector: {
             entity: {
               domain: 'sensor',
             },
+          },
+        },
+        {
+          name: 'battery_charging_entity',
+          selector: {
+            entity: {},
           },
         },
         {
@@ -183,8 +213,12 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
             return 'Phone Entity';
           case 'phone_name':
             return 'Phone Name';
+          case 'phone_platform':
+            return 'Phone Platform';
           case 'battery_entity':
             return 'Battery Entity';
+          case 'battery_charging_entity':
+            return 'Battery Charging Entity';
           case 'show_entity_picture':
             return 'Show Entity Picture';
           case 'show_name':
@@ -220,8 +254,12 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
             return 'Optional phone/device entity linked to this person';
           case 'phone_name':
             return 'Optional custom phone label';
+          case 'phone_platform':
+            return 'Auto, Android or iPhone';
           case 'battery_entity':
             return 'Optional battery level sensor, for example sensor.phone_battery_level';
+          case 'battery_charging_entity':
+            return 'Optional entity with charging status, for example binary_sensor.phone_is_charging';
           case 'show_entity_picture':
             return 'Defaults to true';
           case 'show_name':
@@ -376,6 +414,7 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
       this._config.phone_entity || (state.attributes.source as string | undefined);
     const phoneState = phoneEntityId ? this.hass.states[phoneEntityId] : undefined;
     const phoneName = this.getPhoneName(phoneEntityId, phoneState);
+    const phoneIcon = this.getPhoneIcon(phoneState);
     const batteryText = this.getBatteryText(state, phoneState);
     const location = this.formatLocation(state.state);
     const statusClass = this.getStatusClass(state.state);
@@ -402,33 +441,45 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
       >
         <div class="glass-shine"></div>
         <div class="card-content person-card-content">
-          <div class="person-avatar-wrap">
-            ${showPicture && picture
-              ? html`<img src="${picture}" alt="${name}" class="person-avatar" />`
-              : html`<div class="person-avatar person-avatar-fallback">
-                  <ha-icon icon="${icon}"></ha-icon>
-                </div>`}
-            ${showBadge
-              ? html`<span class="person-status-dot" aria-hidden="true"></span>`
-              : nothing}
+          <div class="person-profile-column">
+            <div class="person-avatar-wrap">
+              ${showPicture && picture
+                ? html`<img src="${picture}" alt="${name}" class="person-avatar" />`
+                : html`<div class="person-avatar person-avatar-fallback">
+                    <ha-icon icon="${icon}"></ha-icon>
+                  </div>`}
+              ${showBadge
+                ? html`<span class="person-status-dot" aria-hidden="true"></span>`
+                : nothing}
+            </div>
+            <div class="person-main">
+              ${showName ? html`<div class="person-name">${name}</div>` : nothing}
+              ${showState ? html`<div class="person-location">${location}</div>` : nothing}
+              ${changedText ? html`<div class="person-updated">${changedText}</div>` : nothing}
+            </div>
           </div>
-          <div class="person-main">
-            ${showName ? html`<div class="person-name">${name}</div>` : nothing}
-            ${showState ? html`<div class="person-location">${location}</div>` : nothing}
-            ${showPhone && phoneName
-              ? html`<div class="person-meta person-phone">
-                  <ha-icon icon="mdi:cellphone"></ha-icon>
-                  <span>${phoneName}</span>
-                </div>`
-              : nothing}
-            ${showBattery && batteryText
-              ? html`<div class="person-meta person-battery">
-                  <ha-icon icon="${this.getBatteryIcon(batteryText.value)}"></ha-icon>
-                  <span>${batteryText.label}</span>
-                </div>`
-              : nothing}
-            ${changedText ? html`<div class="person-updated">${changedText}</div>` : nothing}
-          </div>
+          ${(showPhone && phoneName) || (showBattery && batteryText)
+            ? html`<div class="person-device-column">
+                <div class="person-device-row">
+                  ${showPhone && phoneName
+                    ? html`<div class="person-phone">
+                        <ha-icon icon="${phoneIcon}"></ha-icon>
+                        <span>${phoneName}</span>
+                      </div>`
+                    : nothing}
+                  ${showBattery && batteryText
+                    ? html`<div
+                        class="person-battery ${batteryText.isCharging ? 'is-charging' : ''}"
+                      >
+                        <ha-icon
+                          icon="${this.getBatteryIcon(batteryText.value, batteryText.isCharging)}"
+                        ></ha-icon>
+                        <span>${batteryText.label}</span>
+                      </div>`
+                    : nothing}
+                </div>
+              </div>`
+            : nothing}
         </div>
       </ha-card>
     `;
@@ -463,6 +514,44 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
     return phoneState?.attributes?.friendly_name || phoneEntityId.replace(/^.*\./, '');
   }
 
+  private getPhoneIcon(phoneState: { state: string; attributes: Record<string, any> } | undefined) {
+    const platform = this.getPhonePlatform(phoneState);
+    if (platform === 'android') return 'mdi:android';
+    if (platform === 'iphone' || platform === 'ios') return 'mdi:cellphone-iphone';
+    return 'mdi:cellphone';
+  }
+
+  private getPhonePlatform(
+    phoneState: { state: string; attributes: Record<string, any> } | undefined
+  ) {
+    const configured = this._config.phone_platform?.toLowerCase();
+    if (configured && configured !== 'auto') return configured;
+
+    const text = [
+      phoneState?.attributes?.platform,
+      phoneState?.attributes?.os_name,
+      phoneState?.attributes?.os_version,
+      phoneState?.attributes?.manufacturer,
+      phoneState?.attributes?.model,
+      phoneState?.attributes?.friendly_name,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    if (text.includes('android')) return 'android';
+    if (
+      text.includes('iphone') ||
+      text.includes('ios') ||
+      text.includes('ipad') ||
+      text.includes('apple')
+    ) {
+      return 'iphone';
+    }
+
+    return undefined;
+  }
+
   private getBatteryText(
     personState: { state: string; attributes: Record<string, any> },
     phoneState: { state: string; attributes: Record<string, any> } | undefined
@@ -477,6 +566,7 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
       phoneState?.attributes?.battery_level ??
       phoneState?.attributes?.battery;
     const numericValue = Number(batteryValue);
+    const isCharging = this.isBatteryCharging(batteryEntity, phoneState);
 
     if (batteryValue === undefined || batteryValue === null || batteryValue === '') {
       return undefined;
@@ -487,16 +577,58 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
       return {
         value: numericValue,
         label: `${Math.round(numericValue)}${unit}`,
+        isCharging,
       };
     }
 
     return {
       value: undefined,
       label: String(batteryValue),
+      isCharging,
     };
   }
 
-  private getBatteryIcon(value: number | undefined) {
+  private isBatteryCharging(
+    batteryState: { state: string; attributes: Record<string, any> } | undefined,
+    phoneState: { state: string; attributes: Record<string, any> } | undefined
+  ) {
+    const chargingState = this._config.battery_charging_entity
+      ? this.hass.states[this._config.battery_charging_entity]
+      : undefined;
+    const chargingValue =
+      chargingState?.state ??
+      chargingState?.attributes?.is_charging ??
+      chargingState?.attributes?.charging ??
+      batteryState?.attributes?.is_charging ??
+      batteryState?.attributes?.charging ??
+      batteryState?.attributes?.battery_charging ??
+      batteryState?.attributes?.battery_status ??
+      phoneState?.attributes?.is_charging ??
+      phoneState?.attributes?.charging ??
+      phoneState?.attributes?.battery_charging ??
+      phoneState?.attributes?.battery_status;
+
+    if (typeof chargingValue === 'boolean') return chargingValue;
+
+    const normalized = String(chargingValue ?? '').toLowerCase();
+    return ['on', 'true', 'charging', 'charging_ac', 'charging_usb'].includes(normalized);
+  }
+
+  private getBatteryIcon(value: number | undefined, isCharging: boolean) {
+    if (isCharging) {
+      if (value === undefined) return 'mdi:battery-charging';
+      if (value <= 10) return 'mdi:battery-charging-10';
+      if (value <= 20) return 'mdi:battery-charging-20';
+      if (value <= 30) return 'mdi:battery-charging-30';
+      if (value <= 40) return 'mdi:battery-charging-40';
+      if (value <= 50) return 'mdi:battery-charging-50';
+      if (value <= 60) return 'mdi:battery-charging-60';
+      if (value <= 70) return 'mdi:battery-charging-70';
+      if (value <= 80) return 'mdi:battery-charging-80';
+      if (value <= 90) return 'mdi:battery-charging-90';
+      return 'mdi:battery-charging-100';
+    }
+
     if (value === undefined) return 'mdi:battery-unknown';
     if (value <= 10) return 'mdi:battery-10';
     if (value <= 20) return 'mdi:battery-20';
