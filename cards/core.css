@@ -31,6 +31,8 @@ ha-card {
   padding: var(--dihor-card-padding);
   box-shadow: var(--dihor-card-shadow);
   border: var(--dihor-card-border-size) solid var(--dihor-card-border-color);
+  outline: 1px solid var(--dihor-glass-inner-border);
+  outline-offset: -1px;
 }
 
 /* Glassmorphism Design System */
@@ -44,6 +46,8 @@ ha-card {
   backdrop-filter: blur(var(--dihor-glass-blur)) saturate(145%);
   -webkit-backdrop-filter: blur(var(--dihor-glass-blur)) saturate(145%);
   box-shadow: var(--dihor-card-shadow);
+  outline: 1px solid var(--dihor-glass-inner-border);
+  outline-offset: -1px;
   overflow: hidden;
   transition:
     background-color 0.2s ease,
@@ -75,6 +79,7 @@ ha-card {
 
 .glass-card:hover {
   background: color-mix(in srgb, var(--dihor-glass-card-bg) 92%, rgba(255, 255, 255, 0.18));
+  border-color: color-mix(in srgb, var(--dihor-card-border-color) 72%, rgba(255, 255, 255, 0.34));
 }
 
 .glass-card.pressed {

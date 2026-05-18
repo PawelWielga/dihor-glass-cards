@@ -40,10 +40,14 @@
   color: var(--dihor-toggle-icon-color);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03)),
-    color-mix(in srgb, var(--dihor-card-bg) 68%, rgba(18, 22, 30, 0.5));
-  border: 0;
+    var(--dihor-toggle-surface-bg);
+  backdrop-filter: blur(calc(var(--dihor-glass-blur) - 4px)) saturate(140%);
+  -webkit-backdrop-filter: blur(calc(var(--dihor-glass-blur) - 4px)) saturate(140%);
+  border: 1px solid var(--dihor-card-border-color);
   border-radius: 999px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    inset 0 1px 0 var(--dihor-glass-inner-border),
+    0 8px 22px rgba(0, 0, 0, 0.16);
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
@@ -71,14 +75,21 @@
   transform: translateY(-1px);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
-    color-mix(in srgb, var(--dihor-card-bg) 74%, rgba(18, 22, 30, 0.56));
+    color-mix(in srgb, var(--dihor-toggle-surface-bg) 82%, rgba(255, 255, 255, 0.16));
+  border-color: color-mix(in srgb, var(--dihor-card-border-color) 68%, rgba(255, 255, 255, 0.36));
 }
 
 .glass-button.pressed {
   color: var(--text-primary-color, #ffffff);
-  background: var(--dihor-toggle-active-color);
-  box-shadow: 0 8px 20px
-    color-mix(in srgb, var(--dihor-toggle-active-color) 36%, rgba(0, 0, 0, 0.14));
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06)),
+    color-mix(in srgb, var(--dihor-toggle-active-color) 68%, var(--dihor-glass-card-bg));
+  border-color: color-mix(in srgb, var(--dihor-toggle-active-color) 62%, rgba(255, 255, 255, 0.32));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 20px color-mix(in srgb, var(--dihor-toggle-active-color) 38%, rgba(0, 0, 0, 0.18));
+  backdrop-filter: blur(calc(var(--dihor-glass-blur) - 2px)) saturate(160%);
+  -webkit-backdrop-filter: blur(calc(var(--dihor-glass-blur) - 2px)) saturate(160%);
 }
 
 .glass-button:focus-visible {
@@ -88,7 +99,7 @@
 
 .glass-button.unavailable {
   color: var(--disabled-text-color, var(--secondary-text-color, #8a94a6));
-  background: color-mix(in srgb, var(--dihor-card-bg) 72%, rgba(18, 22, 30, 0.64));
+  background: color-mix(in srgb, var(--dihor-toggle-surface-bg) 74%, rgba(18, 22, 30, 0.36));
 }
 
 /* Icon inside button */
