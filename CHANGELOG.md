@@ -1,3 +1,10 @@
+## [4.2.1](https://github.com/PawelWielga/dihor-ha-components/compare/v4.2.0...v4.2.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* polish card layouts and glass styles ([0055b83](https://github.com/PawelWielga/dihor-ha-components/commit/0055b83f7e017804bbdb3c92fc1bd3bb8f4ddfbe))
+
 # [4.2.0](https://github.com/PawelWielga/dihor-ha-components/compare/v4.1.0...v4.2.0) (2026-05-17)
 
 
