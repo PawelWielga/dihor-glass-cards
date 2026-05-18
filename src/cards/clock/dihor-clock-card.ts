@@ -1,4 +1,4 @@
-import { html, css, unsafeCSS } from 'lit';
+import { html, css, unsafeCSS, type PropertyValues } from 'lit';
 import { state } from 'lit/decorators.js';
 import { BaseCardConfig, BaseDihorCard } from '../../shared/base-card';
 import { registerCustomCard } from '../../shared/custom-card-registry';
@@ -11,6 +11,9 @@ export interface ClockCardConfig extends BaseCardConfig {
 export class ClockCard extends BaseDihorCard<ClockCardConfig> {
   @state() private _timeString: string = '';
   private _interval?: number;
+  private resizeObserver?: ResizeObserver;
+  private fitFrame?: number;
+  private measureCanvas?: HTMLCanvasElement;
 
   static get styles() {
     return [
@@ -71,6 +74,21 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
   disconnectedCallback() {
     super.disconnectedCallback();
     if (this._interval) window.clearInterval(this._interval);
+    this.resizeObserver?.disconnect();
+    if (this.fitFrame) window.cancelAnimationFrame(this.fitFrame);
+  }
+
+  firstUpdated() {
+    this.resizeObserver = new ResizeObserver(() => this.scheduleClockFit());
+    this.resizeObserver.observe(this);
+    this.scheduleClockFit();
+  }
+
+  protected updated(changedProperties: PropertyValues) {
+    super.updated(changedProperties);
+    if (changedProperties.has('_timeString') || changedProperties.has('_config')) {
+      this.scheduleClockFit();
+    }
   }
 
   private startClock() {
@@ -86,6 +104,51 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
       minute: '2-digit',
       second: '2-digit',
     });
+  }
+
+  private scheduleClockFit() {
+    if (this.fitFrame) {
+      window.cancelAnimationFrame(this.fitFrame);
+    }
+
+    this.fitFrame = window.requestAnimationFrame(() => {
+      this.fitFrame = undefined;
+      this.fitClockText();
+    });
+  }
+
+  private fitClockText() {
+    const face = this.renderRoot.querySelector<HTMLElement>('.clock-face');
+    const text = this.renderRoot.querySelector<HTMLElement>('.time-display');
+    if (!face || !text) return;
+
+    const availableWidth = face.clientWidth;
+    const availableHeight = face.clientHeight;
+    if (availableWidth <= 0 || availableHeight <= 0) return;
+
+    const maxFontSize = this.getPreferredClockFontSize();
+    const fontByHeight = availableHeight / 1.1;
+    const textWidthAtMax = this.measureClockTextWidth(text, maxFontSize);
+    const fontByWidth =
+      textWidthAtMax > 0 ? maxFontSize * (availableWidth / textWidthAtMax) : maxFontSize;
+    const nextFontSize = Math.max(12, Math.min(maxFontSize, fontByHeight, fontByWidth));
+
+    this.style.setProperty('--dihor-clock-font-size', `${Math.floor(nextFontSize)}px`);
+  }
+
+  private measureClockTextWidth(text: HTMLElement, fontSize: number) {
+    this.measureCanvas ??= document.createElement('canvas');
+    const context = this.measureCanvas.getContext('2d');
+    if (!context) return text.scrollWidth;
+
+    const styles = getComputedStyle(text);
+    context.font = `${styles.fontWeight} ${fontSize}px ${styles.fontFamily}`;
+    return context.measureText(this._timeString || '00:00:00').width;
+  }
+
+  private getPreferredClockFontSize() {
+    const rem = Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    return (1.25 + this.getClockScale() * 0.46) * rem;
   }
 
   protected renderCard() {
@@ -106,13 +169,13 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
   }
 
   getGridOptions() {
-    const rows = Math.max(2, Math.ceil(this.getCardSize()));
+    const rows = Math.min(2, Math.max(1, Math.ceil(this.getCardSize())));
     return {
       rows,
       columns: 6,
-      min_rows: 2,
-      max_rows: 5,
-      min_columns: 3,
+      min_rows: 1,
+      max_rows: 2,
+      min_columns: 6,
       max_columns: 12,
     };
   }
