@@ -18,7 +18,6 @@ export interface PersonCardConfig extends BaseCardConfig {
   show_phone?: boolean;
   show_battery?: boolean;
   show_last_changed?: boolean;
-  show_badge?: boolean;
   tap_action?: DihorActionConfig;
   hold_action?: DihorActionConfig;
   double_tap_action?: DihorActionConfig;
@@ -164,12 +163,6 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
           },
         },
         {
-          name: 'show_badge',
-          selector: {
-            boolean: {},
-          },
-        },
-        {
           type: 'expandable',
           name: '',
           title: 'Actions',
@@ -231,8 +224,6 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
             return 'Show Battery';
           case 'show_last_changed':
             return 'Show Last Changed';
-          case 'show_badge':
-            return 'Show Status Badge';
           case 'tap_action':
             return 'Tap Action';
           case 'hold_action':
@@ -272,8 +263,6 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
             return 'Defaults to true when battery data is available';
           case 'show_last_changed':
             return 'Defaults to false';
-          case 'show_badge':
-            return 'Defaults to true';
           case 'tap_action':
             return 'Defaults to more-info';
           case 'hold_action':
@@ -407,7 +396,6 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
     const showPhone = this._config.show_phone ?? true;
     const showBattery = this._config.show_battery ?? true;
     const showLastChanged = this._config.show_last_changed ?? false;
-    const showBadge = this._config.show_badge ?? true;
     const icon =
       this._config.icon || (state.attributes.icon as string | undefined) || 'mdi:account';
     const phoneEntityId =
@@ -441,45 +429,40 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
       >
         <div class="glass-shine"></div>
         <div class="card-content person-card-content">
-          <div class="person-profile-column">
+          <div class="person-avatar-column">
             <div class="person-avatar-wrap">
               ${showPicture && picture
                 ? html`<img src="${picture}" alt="${name}" class="person-avatar" />`
                 : html`<div class="person-avatar person-avatar-fallback">
                     <ha-icon icon="${icon}"></ha-icon>
                   </div>`}
-              ${showBadge
-                ? html`<span class="person-status-dot" aria-hidden="true"></span>`
-                : nothing}
             </div>
+          </div>
+          <div class="person-info-column">
             <div class="person-main">
               ${showName ? html`<div class="person-name">${name}</div>` : nothing}
               ${showState ? html`<div class="person-location">${location}</div>` : nothing}
+              ${showPhone && phoneName
+                ? html`<div class="person-phone">
+                    <ha-icon icon="${phoneIcon}"></ha-icon>
+                    <span>${phoneName}</span>
+                  </div>`
+                : nothing}
               ${changedText ? html`<div class="person-updated">${changedText}</div>` : nothing}
             </div>
+            ${showBattery && batteryText
+              ? html`<div class="person-device-column">
+                  <div class="person-device-row">
+                    <div class="person-battery ${batteryText.isCharging ? 'is-charging' : ''}">
+                      <ha-icon
+                        icon="${this.getBatteryIcon(batteryText.value, batteryText.isCharging)}"
+                      ></ha-icon>
+                      <span>${batteryText.label}</span>
+                    </div>
+                  </div>
+                </div>`
+              : nothing}
           </div>
-          ${(showPhone && phoneName) || (showBattery && batteryText)
-            ? html`<div class="person-device-column">
-                <div class="person-device-row">
-                  ${showPhone && phoneName
-                    ? html`<div class="person-phone">
-                        <ha-icon icon="${phoneIcon}"></ha-icon>
-                        <span>${phoneName}</span>
-                      </div>`
-                    : nothing}
-                  ${showBattery && batteryText
-                    ? html`<div
-                        class="person-battery ${batteryText.isCharging ? 'is-charging' : ''}"
-                      >
-                        <ha-icon
-                          icon="${this.getBatteryIcon(batteryText.value, batteryText.isCharging)}"
-                        ></ha-icon>
-                        <span>${batteryText.label}</span>
-                      </div>`
-                    : nothing}
-                </div>
-              </div>`
-            : nothing}
         </div>
       </ha-card>
     `;
