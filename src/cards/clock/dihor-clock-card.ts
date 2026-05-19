@@ -12,11 +12,11 @@ export interface ClockCardConfig extends BaseCardConfig {
   font_weight?: LiquidFontWeight;
   hour_format?: ClockHourFormat;
   show_seconds?: boolean;
+  time_contrast_color?: number;
   refraction?: number;
   bevel_depth?: number;
   frost?: number;
   specular?: number;
-  contrast?: number;
 }
 
 const DEFAULT_CLOCK_CONFIG = {
@@ -24,11 +24,11 @@ const DEFAULT_CLOCK_CONFIG = {
   font_weight: 700 as LiquidFontWeight,
   hour_format: '24' as ClockHourFormat,
   show_seconds: false,
+  time_contrast_color: 0,
   refraction: 0.06,
   bevel_depth: 1.8,
   frost: 0.34,
   specular: 1.8,
-  contrast: 0.62,
 };
 
 const VERTEX_SHADER = `#version 300 es
@@ -50,7 +50,6 @@ const FRAGMENT_SHADER = `#version 300 es
   uniform float u_bevelDepth;
   uniform float u_frost;
   uniform float u_specularStrength;
-  uniform float u_contrast;
 
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
@@ -72,8 +71,7 @@ const FRAGMENT_SHADER = `#version 300 es
       float refractionGlow = length(normal.xy) * u_refraction * 7.0;
       vec3 glassColor = vec3(0.88, 0.96, 1.0);
       vec3 edgeColor = vec3(1.0);
-      float edgeBoost = edgeLine * (0.48 + u_contrast * 0.34);
-      float alpha = (0.16 + u_frost * 0.34 + u_contrast * 0.18) * inner + edgeBoost + spec * 0.28 + refractionGlow;
+      float alpha = (0.18 + u_frost * 0.34) * inner + edgeLine * 0.54 + spec * 0.28 + refractionGlow;
 
       result = vec4(mix(glassColor, edgeColor, edgeLine + spec), alpha * smoothstep(0.03, 0.36, mask));
     }
@@ -155,6 +153,17 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
           },
         },
         {
+          name: 'time_contrast_color',
+          selector: {
+            number: {
+              min: 0,
+              max: 255,
+              step: 1,
+              mode: 'slider',
+            },
+          },
+        },
+        {
           name: 'refraction',
           selector: {
             number: {
@@ -198,28 +207,17 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
             },
           },
         },
-        {
-          name: 'contrast',
-          selector: {
-            number: {
-              min: 0,
-              max: 1,
-              step: 0.05,
-              mode: 'box',
-            },
-          },
-        },
       ],
       computeLabel: (schema: any) => {
         if (schema.name === 'size') return 'Clock Size';
         if (schema.name === 'font_weight') return 'Font Weight';
         if (schema.name === 'hour_format') return 'Hour Format';
         if (schema.name === 'show_seconds') return 'Show Seconds';
+        if (schema.name === 'time_contrast_color') return 'Contrast Layer Color';
         if (schema.name === 'refraction') return 'Refraction';
         if (schema.name === 'bevel_depth') return 'Bevel Depth';
         if (schema.name === 'frost') return 'Frost';
         if (schema.name === 'specular') return 'Specular';
-        if (schema.name === 'contrast') return 'Background Contrast';
         return undefined;
       },
       computeHelper: (schema: any) => {
@@ -227,13 +225,13 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
         if (schema.name === 'font_weight') return 'Font weight: 400, 700 or 900';
         if (schema.name === 'hour_format') return 'Clock format: 12-hour or 24-hour';
         if (schema.name === 'show_seconds') return 'Show seconds in the clock display';
+        if (schema.name === 'time_contrast_color')
+          return 'Grayscale color for the contrast layer: 0 = white, 255 = black';
         if (schema.name === 'refraction')
           return 'Glass edge distortion strength (0-0.15, default: 0.05)';
         if (schema.name === 'bevel_depth') return 'Glass edge depth (0.5-3, default: 1.5)';
         if (schema.name === 'frost') return 'Milky glass amount (0-1, default: 0.2)';
         if (schema.name === 'specular') return 'Edge highlight brightness (0-3, default: 1.2)';
-        if (schema.name === 'contrast')
-          return 'Extra outline and shadow strength for busy dashboard backgrounds (0-1, default: 0.62)';
         return undefined;
       },
       assertConfig: (config: ClockCardConfig) => {
@@ -253,6 +251,12 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
         config.show_seconds,
         DEFAULT_CLOCK_CONFIG.show_seconds
       ),
+      time_contrast_color: ClockCard.normalizeNumber(
+        config.time_contrast_color,
+        0,
+        255,
+        DEFAULT_CLOCK_CONFIG.time_contrast_color
+      ),
       refraction: ClockCard.normalizeNumber(
         config.refraction,
         0,
@@ -267,7 +271,6 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
       ),
       frost: ClockCard.normalizeNumber(config.frost, 0, 1, DEFAULT_CLOCK_CONFIG.frost),
       specular: ClockCard.normalizeNumber(config.specular, 0, 3, DEFAULT_CLOCK_CONFIG.specular),
-      contrast: ClockCard.normalizeNumber(config.contrast, 0, 1, DEFAULT_CLOCK_CONFIG.contrast),
     });
   }
 
@@ -312,6 +315,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
       second: showSeconds ? '2-digit' : undefined,
       hour12: this.getHourFormat() === '12',
     });
+    this.drawHeightmap();
   }
 
   private startLiquidClock() {
@@ -454,7 +458,6 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     gl.uniform1f(this.getUniform('u_bevelDepth'), this.getBevelDepth());
     gl.uniform1f(this.getUniform('u_frost'), this.getFrost());
     gl.uniform1f(this.getUniform('u_specularStrength'), this.getSpecular());
-    gl.uniform1f(this.getUniform('u_contrast'), this.getContrast());
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, heightmapTexture);
@@ -489,6 +492,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
         measuredWidth > 0 ? preferredFontSize * ((width * 0.94) / measuredWidth) : preferredFontSize
       )
     );
+    this.style.setProperty('--dihor-clock-rendered-font-size', `${fontSize}px`);
 
     context.save();
     context.setTransform(1, 0, 0, 1, 0, 0);
@@ -537,7 +541,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     return html`
       <ha-card
         class="clock-card liquid-clock-card ${this.getShowSeconds() ? 'has-seconds' : ''}"
-        style="--dihor-clock-scale: ${this.getClockScale()}; --dihor-clock-font-weight: ${this.getFontWeight()}; --dihor-clock-contrast: ${this.getContrast()};"
+        style="--dihor-clock-scale: ${this.getClockScale()}; --dihor-clock-font-weight: ${this.getFontWeight()}; --dihor-clock-time-contrast-channel: ${this.getTimeContrastChannel()};"
       >
         <canvas class="liquid-clock-canvas" aria-hidden="true"></canvas>
         <div class="clock-overlay" aria-label=${this._timeString}>
@@ -585,6 +589,19 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     );
   }
 
+  private getTimeContrastColor() {
+    return ClockCard.normalizeNumber(
+      this._config?.time_contrast_color,
+      0,
+      255,
+      DEFAULT_CLOCK_CONFIG.time_contrast_color
+    );
+  }
+
+  private getTimeContrastChannel() {
+    return 255 - this.getTimeContrastColor();
+  }
+
   private getRefraction() {
     return ClockCard.normalizeNumber(
       this._config?.refraction,
@@ -609,10 +626,6 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   private getSpecular() {
     return ClockCard.normalizeNumber(this._config?.specular, 0, 3, DEFAULT_CLOCK_CONFIG.specular);
-  }
-
-  private getContrast() {
-    return ClockCard.normalizeNumber(this._config?.contrast, 0, 1, DEFAULT_CLOCK_CONFIG.contrast);
   }
 
   private static normalizeSize(size: unknown): number {
@@ -661,11 +674,11 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
   private static validateConfig(config: ClockCardConfig) {
     const size = config.size as unknown;
     ClockCard.validateNumber('size', size, 1, 5);
+    ClockCard.validateNumber('time_contrast_color', config.time_contrast_color, 0, 255);
     ClockCard.validateNumber('refraction', config.refraction, 0, 0.15);
     ClockCard.validateNumber('bevel_depth', config.bevel_depth, 0.5, 3);
     ClockCard.validateNumber('frost', config.frost, 0, 1);
     ClockCard.validateNumber('specular', config.specular, 0, 3);
-    ClockCard.validateNumber('contrast', config.contrast, 0, 1);
 
     if (
       config.font_weight !== undefined &&
