@@ -1,14 +1,14 @@
 # AGENTS.md
 
-Podstawowe zasady pracy agentów w repozytorium `dihor-ha-components`.
+Podstawowe zasady pracy agentów w repozytorium `dihor-glass-cards`.
 
 ## 1) Kontekst projektu
-- Projekt: `dihor-ha-components`
+- Projekt: `dihor-glass-cards`
 - Cel: biblioteka custom cards dla Home Assistant.
 - Stack: TypeScript + Lit + Rollup.
 - Typ dystrybucji: moduł ES dla HACS/Home Assistant.
 - Główne artefakty:
-  - runtime: `dist/dihor-ha-components.js`
+  - runtime: `dist/dihor-glass-cards.js`
   - preview/docs: `docs/`
   - manifest HACS: `hacs.json`
 
@@ -53,7 +53,7 @@ Podstawowe zasady pracy agentów w repozytorium `dihor-ha-components`.
 - Przy dodawaniu nowej sekcji dokumentacji dodaj obie wersje językowe tej samej treści.
 - Przy edycji istniejącej sekcji zsynchronizuj PL i EN merytorycznie.
 - `npm run prepare-docs` kopiuje:
-  - `dist/dihor-ha-components.js` do `docs/dihor-ha-components.js`
+  - `dist/dihor-glass-cards.js` do `docs/dihor-glass-cards.js`
   - manifest kart do `docs/cards/cards-docs.json`
   - CSS kart i style współdzielone do `docs/cards/`
   - `docs/version.json` oraz `docs/.nojekyll`

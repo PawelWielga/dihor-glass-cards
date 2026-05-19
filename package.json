@@ -1,5 +1,5 @@
 {
-  "name": "dihor-ha-components",
+  "name": "dihor-glass-cards",
   "version": "4.2.1",
   "scripts": {
     "build": "rollup -c",

@@ -1,8 +1,8 @@
-# Dihor HA Components
+# Dihor Glass Cards
 
-PL: `dihor-ha-components` to paczka kart do Home Assistant. Dodaje kilka gotowych kart Lovelace, które możesz wrzucić na dashboard bez pisania własnego kodu.
+PL: `dihor-glass-cards` to paczka kart do Home Assistant w stylu glass. Dodaje kilka gotowych kart Lovelace, które możesz wrzucić na dashboard bez pisania własnego kodu.
 
-EN: `dihor-ha-components` is a Home Assistant card package. It adds ready-to-use Lovelace cards that you can place on a dashboard without writing custom code.
+EN: `dihor-glass-cards` is a glass-style Home Assistant card package. It adds ready-to-use Lovelace cards that you can place on a dashboard without writing custom code.
 
 ## Co zawiera / What's Included
 
@@ -36,14 +36,14 @@ PL:
 1. Otwórz HACS w Home Assistant.
 2. Wejdź w `Integrations` lub `Frontend`, zależnie od widoku HACS.
 3. Dodaj to repozytorium jako custom repository typu `Dashboard`.
-4. Zainstaluj `dihor-ha-components`.
+4. Zainstaluj `dihor-glass-cards`.
 5. Odśwież Home Assistant albo wyczyść cache przeglądarki, jeśli karta nie pojawi się od razu.
 
 EN:
 1. Open HACS in Home Assistant.
 2. Go to `Integrations` or `Frontend`, depending on your HACS view.
 3. Add this repository as a `Dashboard` custom repository.
-4. Install `dihor-ha-components`.
+4. Install `dihor-glass-cards`.
 5. Refresh Home Assistant or clear the browser cache if the card does not appear immediately.
 
 ## Zasób Home Assistant / Home Assistant Resource
@@ -53,7 +53,7 @@ PL: HACS powinien dodać zasób automatycznie. Jeśli robisz to ręcznie, dodaj:
 EN: HACS should add the resource automatically. If you add it manually, use:
 
 ```yaml
-url: /hacsfiles/dihor-ha-components/dihor-ha-components.js
+url: /hacsfiles/dihor-glass-cards/dihor-glass-cards.js
 type: module
 ```
 

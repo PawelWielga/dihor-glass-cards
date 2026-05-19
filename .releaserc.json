@@ -28,8 +28,8 @@
       {
         "assets": [
           {
-            "path": "dist/dihor-ha-components.js",
-            "label": "Dihor HA Components Bundle"
+            "path": "dist/dihor-glass-cards.js",
+            "label": "Dihor Glass Cards Bundle"
           }
         ]
       }

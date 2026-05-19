@@ -1,5 +1,7 @@
 node_modules
 dist
+!dist/
+!dist/dihor-glass-cards.js
 cards
 !src/cards/
 !src/cards/cards-docs.json

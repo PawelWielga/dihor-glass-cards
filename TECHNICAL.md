@@ -1,8 +1,8 @@
 # Technical Notes / Notatki Techniczne
 
-PL: Ten plik jest dla osób rozwijających paczkę `dihor-ha-components`.
+PL: Ten plik jest dla osób rozwijających paczkę `dihor-glass-cards`.
 
-EN: This file is for people developing the `dihor-ha-components` package.
+EN: This file is for people developing the `dihor-glass-cards` package.
 
 ## Stack
 
@@ -21,7 +21,7 @@ PL:
 - `npm run format:check` - sprawdza formatowanie Prettierem.
 - `npm run format` - formatuje pliki w `src/`.
 - `npx tsc --noEmit` - sprawdza typy.
-- `npm run build` - buduje `dist/dihor-ha-components.js`.
+- `npm run build` - buduje `dist/dihor-glass-cards.js`.
 - `npm run prepare-docs` - kopiuje bundle i assety preview do `docs/`.
 - `npm run check-docs-manifest` - sprawdza, czy preview ma wymagane pliki CSS.
 - `npm run dev` - przygotowuje docs i uruchamia lokalny preview.
@@ -32,7 +32,7 @@ EN:
 - `npm run format:check` - checks formatting with Prettier.
 - `npm run format` - formats files in `src/`.
 - `npx tsc --noEmit` - checks types.
-- `npm run build` - builds `dist/dihor-ha-components.js`.
+- `npm run build` - builds `dist/dihor-glass-cards.js`.
 - `npm run prepare-docs` - copies the bundle and preview assets into `docs/`.
 - `npm run check-docs-manifest` - verifies that preview CSS assets exist.
 - `npm run dev` - prepares docs and starts local preview.
@@ -44,7 +44,7 @@ EN:
 - `src/shared/base-card.ts` - wspólna baza kart / shared card base
 - `src/shared/styles/*` - wspólne style / shared styles
 - `src/cards/cards-docs.json` - manifest preview / preview manifest
-- `dist/dihor-ha-components.js` - bundle runtime dla HACS / runtime bundle for HACS
+- `dist/dihor-glass-cards.js` - bundle runtime dla HACS / runtime bundle for HACS
 - `docs/*` - preview i statyczne assety / preview and static assets
 - `scripts/*` - skrypty operacyjne / operational scripts
 - `.github/workflows/*` - CI, GitHub Pages i Semantic Release
@@ -107,15 +107,15 @@ if (!customElements.get("dihor-my-card")) {
 
 PL:
 - Release jest obsługiwany przez Semantic Release.
-- HACS używa runtime bundle: `dist/dihor-ha-components.js`.
-- GitHub release publikuje asset: `dihor-ha-components.js`.
+- HACS używa runtime bundle: `dist/dihor-glass-cards.js`.
+- GitHub release publikuje asset: `dihor-glass-cards.js`.
 - GitHub Pages publikuje zawartość `docs/`.
 - `npm run prepare-docs` powinno być uruchamiane po `npm run build`.
 
 EN:
 - Releases are handled by Semantic Release.
-- HACS uses the runtime bundle: `dist/dihor-ha-components.js`.
-- GitHub releases publish the asset: `dihor-ha-components.js`.
+- HACS uses the runtime bundle: `dist/dihor-glass-cards.js`.
+- GitHub releases publish the asset: `dihor-glass-cards.js`.
 - GitHub Pages publishes the contents of `docs/`.
 - `npm run prepare-docs` should run after `npm run build`.
 

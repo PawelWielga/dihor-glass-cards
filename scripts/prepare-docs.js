@@ -2,9 +2,9 @@
 const path = require('path');
 
 const rootDir = path.resolve(__dirname, '..');
-const distFile = path.join(rootDir, 'dist', 'dihor-ha-components.js');
+const distFile = path.join(rootDir, 'dist', 'dihor-glass-cards.js');
 const docsDir = path.join(rootDir, 'docs');
-const targetFile = path.join(docsDir, 'dihor-ha-components.js');
+const targetFile = path.join(docsDir, 'dihor-glass-cards.js');
 const cardsSourceDir = path.join(rootDir, 'src', 'cards');
 const sharedStylesDir = path.join(rootDir, 'src', 'shared', 'styles');
 const cardsTargetDir = path.join(docsDir, 'cards');
@@ -43,9 +43,9 @@ ensureDirectory(cardsTargetDir);
 
 if (fs.existsSync(distFile)) {
   fs.copyFileSync(distFile, targetFile);
-  console.log('Copied dist/dihor-ha-components.js -> docs/');
+  console.log('Copied dist/dihor-glass-cards.js -> docs/');
 } else {
-  console.warn("dist/dihor-ha-components.js not found. Run 'npm run build' first.");
+  console.warn("dist/dihor-glass-cards.js not found. Run 'npm run build' first.");
 }
 
 const manifestPath = path.join(cardsSourceDir, 'cards-docs.json');

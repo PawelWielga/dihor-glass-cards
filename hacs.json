@@ -1,8 +1,8 @@
 {
-  "name": "dihor-ha-components",
-  "filename": "dist/dihor-ha-components.js",
+  "name": "dihor-glass-cards",
+  "filename": "dist/dihor-glass-cards.js",
   "content_in_root": false,
   "type": "module",
   "render_readme": true,
-  "description": "Custom UI components for Home Assistant"
+  "description": "Glass-style custom cards for Home Assistant"
 }
