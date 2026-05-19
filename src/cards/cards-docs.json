@@ -44,12 +44,23 @@
         "value": "custom:dihor-clock-card"
       },
       {
+        "key": "background.color",
+        "value": "pink"
+      },
+      {
+        "key": "grid_options",
+        "value": {
+          "columns": "full",
+          "rows": 2
+        }
+      },
+      {
         "key": "size",
-        "value": "2"
+        "value": 5
       },
       {
         "key": "font_weight",
-        "value": 700
+        "value": "900"
       },
       {
         "key": "hour_format",
@@ -57,27 +68,27 @@
       },
       {
         "key": "show_seconds",
-        "value": false
+        "value": true
       },
       {
-        "key": "time_contrast_color",
+        "key": "contrast",
         "value": 0
       },
       {
         "key": "refraction",
-        "value": 0.06
+        "value": 0.05
       },
       {
         "key": "bevel_depth",
-        "value": 1.8
+        "value": 1.5
       },
       {
         "key": "frost",
-        "value": 0.34
+        "value": 0.2
       },
       {
         "key": "specular",
-        "value": 1.8
+        "value": 1.2
       }
     ]
   },

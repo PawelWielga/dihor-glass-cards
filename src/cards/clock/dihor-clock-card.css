@@ -10,7 +10,10 @@
   box-sizing: border-box;
   background: transparent;
   border: 0;
+  border-radius: var(--ha-card-border-radius, var(--dihor-card-border-radius));
   box-shadow: none;
+  clip-path: inset(0 round var(--ha-card-border-radius, var(--dihor-card-border-radius)));
+  contain: paint;
 }
 
 .time-contrast,

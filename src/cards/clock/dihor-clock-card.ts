@@ -12,6 +12,7 @@ export interface ClockCardConfig extends BaseCardConfig {
   font_weight?: LiquidFontWeight;
   hour_format?: ClockHourFormat;
   show_seconds?: boolean;
+  contrast?: number;
   time_contrast_color?: number;
   refraction?: number;
   bevel_depth?: number;
@@ -20,15 +21,16 @@ export interface ClockCardConfig extends BaseCardConfig {
 }
 
 const DEFAULT_CLOCK_CONFIG = {
-  size: 2,
-  font_weight: 700 as LiquidFontWeight,
+  size: 5,
+  font_weight: 900 as LiquidFontWeight,
   hour_format: '24' as ClockHourFormat,
-  show_seconds: false,
+  show_seconds: true,
+  contrast: 0,
   time_contrast_color: 0,
-  refraction: 0.06,
-  bevel_depth: 1.8,
-  frost: 0.34,
-  specular: 1.8,
+  refraction: 0.05,
+  bevel_depth: 1.5,
+  frost: 0.2,
+  specular: 1.2,
 };
 
 const VERTEX_SHADER = `#version 300 es
@@ -108,6 +110,11 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   static getStubConfig() {
     return {
+      'background.color': 'pink',
+      grid_options: {
+        columns: 'full',
+        rows: 2,
+      },
       ...DEFAULT_CLOCK_CONFIG,
     };
   }
@@ -155,7 +162,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
           },
         },
         {
-          name: 'time_contrast_color',
+          name: 'contrast',
           selector: {
             number: {
               min: 0,
@@ -215,7 +222,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
         if (schema.name === 'font_weight') return 'Font Weight';
         if (schema.name === 'hour_format') return 'Hour Format';
         if (schema.name === 'show_seconds') return 'Show Seconds';
-        if (schema.name === 'time_contrast_color') return 'Contrast Layer Color';
+        if (schema.name === 'contrast') return 'Contrast Layer Color';
         if (schema.name === 'refraction') return 'Refraction';
         if (schema.name === 'bevel_depth') return 'Bevel Depth';
         if (schema.name === 'frost') return 'Frost';
@@ -227,7 +234,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
         if (schema.name === 'font_weight') return 'Font weight: 400, 700 or 900';
         if (schema.name === 'hour_format') return 'Clock format: 12-hour or 24-hour';
         if (schema.name === 'show_seconds') return 'Show seconds in the clock display';
-        if (schema.name === 'time_contrast_color')
+        if (schema.name === 'contrast')
           return 'Grayscale color for the contrast layer: 0 = white, 255 = black';
         if (schema.name === 'refraction')
           return 'Glass edge distortion strength (0-0.15, default: 0.05)';
@@ -254,7 +261,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
         DEFAULT_CLOCK_CONFIG.show_seconds
       ),
       time_contrast_color: ClockCard.normalizeNumber(
-        config.time_contrast_color,
+        config.time_contrast_color ?? config.contrast,
         0,
         255,
         DEFAULT_CLOCK_CONFIG.time_contrast_color
@@ -680,7 +687,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     const rows = Math.min(2, Math.max(1, Math.ceil(this.getCardSize())));
     return {
       rows,
-      columns: 6,
+      columns: 'full' as const,
       min_rows: 1,
       max_rows: 2,
       min_columns: 6,
@@ -709,7 +716,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   private getTimeContrastColor() {
     return ClockCard.normalizeNumber(
-      this._config?.time_contrast_color,
+      this._config?.time_contrast_color ?? this._config?.contrast,
       0,
       255,
       DEFAULT_CLOCK_CONFIG.time_contrast_color
@@ -792,6 +799,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
   private static validateConfig(config: ClockCardConfig) {
     const size = config.size as unknown;
     ClockCard.validateNumber('size', size, 1, 5);
+    ClockCard.validateNumber('contrast', config.contrast, 0, 255);
     ClockCard.validateNumber('time_contrast_color', config.time_contrast_color, 0, 255);
     ClockCard.validateNumber('refraction', config.refraction, 0, 0.15);
     ClockCard.validateNumber('bevel_depth', config.bevel_depth, 0.5, 3);
