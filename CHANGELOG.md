@@ -1,3 +1,10 @@
+## [4.4.1](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.0...v4.4.1) (2026-05-19)
+
+
+### Bug Fixes
+
+* align clock contrast layer ([7476e95](https://github.com/PawelWielga/dihor-glass-cards/commit/7476e95d4e6178e8a91538a1de4d13fe54f577d1))
+
 # [4.4.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.3.0...v4.4.0) (2026-05-19)
 
 
