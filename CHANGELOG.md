@@ -1,3 +1,10 @@
+# [4.3.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.2.2...v4.3.0) (2026-05-19)
+
+
+### Features
+
+* add liquid glass clock ([fc8c13e](https://github.com/PawelWielga/dihor-glass-cards/commit/fc8c13ed2dfc7dc07be6f4d52f7e16aacca207cc))
+
 ## [4.2.2](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.2.1...v4.2.2) (2026-05-19)
 
 
