@@ -60,6 +60,10 @@
         "value": false
       },
       {
+        "key": "time_contrast_color",
+        "value": 0
+      },
+      {
         "key": "refraction",
         "value": 0.06
       },
@@ -74,10 +78,6 @@
       {
         "key": "specular",
         "value": 1.8
-      },
-      {
-        "key": "contrast",
-        "value": 0.62
       }
     ]
   },
