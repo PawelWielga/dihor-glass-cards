@@ -1,3 +1,10 @@
+## [4.2.2](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.2.1...v4.2.2) (2026-05-19)
+
+
+### Bug Fixes
+
+* include icon in HACS release metadata ([aea7a27](https://github.com/PawelWielga/dihor-glass-cards/commit/aea7a270f09ec1dca03c0b5f7eda7cde1a6d83ac))
+
 ## [4.2.1](https://github.com/PawelWielga/dihor-ha-components/compare/v4.2.0...v4.2.1) (2026-05-18)
 
 

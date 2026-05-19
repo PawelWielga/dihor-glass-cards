@@ -1,6 +1,6 @@
 {
   "name": "dihor-glass-cards",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "scripts": {
     "build": "rollup -c",
     "prepare-docs": "node scripts/prepare-docs.js",
