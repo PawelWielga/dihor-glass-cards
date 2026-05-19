@@ -5,23 +5,30 @@ import { registerCustomCard } from '../../shared/custom-card-registry';
 import cardCssStr from './dihor-clock-card.css';
 
 type LiquidFontWeight = 400 | 700 | 900;
+type ClockHourFormat = '12' | '24';
 
 export interface ClockCardConfig extends BaseCardConfig {
   size?: number;
   font_weight?: LiquidFontWeight;
+  hour_format?: ClockHourFormat;
+  show_seconds?: boolean;
   refraction?: number;
   bevel_depth?: number;
   frost?: number;
   specular?: number;
+  contrast?: number;
 }
 
 const DEFAULT_CLOCK_CONFIG = {
   size: 2,
   font_weight: 700 as LiquidFontWeight,
-  refraction: 0.05,
-  bevel_depth: 1.5,
-  frost: 0.2,
-  specular: 1.2,
+  hour_format: '24' as ClockHourFormat,
+  show_seconds: false,
+  refraction: 0.06,
+  bevel_depth: 1.8,
+  frost: 0.34,
+  specular: 1.8,
+  contrast: 0.62,
 };
 
 const VERTEX_SHADER = `#version 300 es
@@ -43,6 +50,7 @@ const FRAGMENT_SHADER = `#version 300 es
   uniform float u_bevelDepth;
   uniform float u_frost;
   uniform float u_specularStrength;
+  uniform float u_contrast;
 
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
@@ -64,7 +72,8 @@ const FRAGMENT_SHADER = `#version 300 es
       float refractionGlow = length(normal.xy) * u_refraction * 7.0;
       vec3 glassColor = vec3(0.88, 0.96, 1.0);
       vec3 edgeColor = vec3(1.0);
-      float alpha = (0.10 + u_frost * 0.28) * inner + edgeLine * 0.42 + spec * 0.24 + refractionGlow;
+      float edgeBoost = edgeLine * (0.48 + u_contrast * 0.34);
+      float alpha = (0.16 + u_frost * 0.34 + u_contrast * 0.18) * inner + edgeBoost + spec * 0.28 + refractionGlow;
 
       result = vec4(mix(glassColor, edgeColor, edgeLine + spec), alpha * smoothstep(0.03, 0.36, mask));
     }
@@ -129,6 +138,23 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
           },
         },
         {
+          name: 'hour_format',
+          selector: {
+            select: {
+              options: [
+                { value: '24', label: '24-hour' },
+                { value: '12', label: '12-hour' },
+              ],
+            },
+          },
+        },
+        {
+          name: 'show_seconds',
+          selector: {
+            boolean: {},
+          },
+        },
+        {
           name: 'refraction',
           selector: {
             number: {
@@ -172,24 +198,42 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
             },
           },
         },
+        {
+          name: 'contrast',
+          selector: {
+            number: {
+              min: 0,
+              max: 1,
+              step: 0.05,
+              mode: 'box',
+            },
+          },
+        },
       ],
       computeLabel: (schema: any) => {
         if (schema.name === 'size') return 'Clock Size';
         if (schema.name === 'font_weight') return 'Font Weight';
+        if (schema.name === 'hour_format') return 'Hour Format';
+        if (schema.name === 'show_seconds') return 'Show Seconds';
         if (schema.name === 'refraction') return 'Refraction';
         if (schema.name === 'bevel_depth') return 'Bevel Depth';
         if (schema.name === 'frost') return 'Frost';
         if (schema.name === 'specular') return 'Specular';
+        if (schema.name === 'contrast') return 'Background Contrast';
         return undefined;
       },
       computeHelper: (schema: any) => {
         if (schema.name === 'size') return 'Size of the clock display (1-5, default: 2)';
         if (schema.name === 'font_weight') return 'Font weight: 400, 700 or 900';
+        if (schema.name === 'hour_format') return 'Clock format: 12-hour or 24-hour';
+        if (schema.name === 'show_seconds') return 'Show seconds in the clock display';
         if (schema.name === 'refraction')
           return 'Glass edge distortion strength (0-0.15, default: 0.05)';
         if (schema.name === 'bevel_depth') return 'Glass edge depth (0.5-3, default: 1.5)';
         if (schema.name === 'frost') return 'Milky glass amount (0-1, default: 0.2)';
         if (schema.name === 'specular') return 'Edge highlight brightness (0-3, default: 1.2)';
+        if (schema.name === 'contrast')
+          return 'Extra outline and shadow strength for busy dashboard backgrounds (0-1, default: 0.62)';
         return undefined;
       },
       assertConfig: (config: ClockCardConfig) => {
@@ -204,6 +248,11 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
       ...config,
       size: ClockCard.normalizeSize(config.size),
       font_weight: ClockCard.normalizeFontWeight(config.font_weight),
+      hour_format: ClockCard.normalizeHourFormat(config.hour_format),
+      show_seconds: ClockCard.normalizeBoolean(
+        config.show_seconds,
+        DEFAULT_CLOCK_CONFIG.show_seconds
+      ),
       refraction: ClockCard.normalizeNumber(
         config.refraction,
         0,
@@ -218,6 +267,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
       ),
       frost: ClockCard.normalizeNumber(config.frost, 0, 1, DEFAULT_CLOCK_CONFIG.frost),
       specular: ClockCard.normalizeNumber(config.specular, 0, 3, DEFAULT_CLOCK_CONFIG.specular),
+      contrast: ClockCard.normalizeNumber(config.contrast, 0, 1, DEFAULT_CLOCK_CONFIG.contrast),
     });
   }
 
@@ -255,9 +305,12 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   private updateTime() {
     const now = new Date();
+    const showSeconds = this.getShowSeconds();
     this._timeString = now.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
+      second: showSeconds ? '2-digit' : undefined,
+      hour12: this.getHourFormat() === '12',
     });
   }
 
@@ -401,6 +454,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     gl.uniform1f(this.getUniform('u_bevelDepth'), this.getBevelDepth());
     gl.uniform1f(this.getUniform('u_frost'), this.getFrost());
     gl.uniform1f(this.getUniform('u_specularStrength'), this.getSpecular());
+    gl.uniform1f(this.getUniform('u_contrast'), this.getContrast());
 
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, heightmapTexture);
@@ -420,7 +474,21 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     const dpr = window.devicePixelRatio || 1;
     const width = canvas.width / dpr;
     const height = canvas.height / dpr;
-    const fontSize = Math.min(width * 0.22, height * 0.78, this.getPreferredClockFontSize());
+    const preferredFontSize = this.getPreferredClockFontSize();
+    const fontFamily =
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    const timeString = this._timeString || this.getEmptyTimeString();
+
+    context.font = `${this.getFontWeight()} ${preferredFontSize}px ${fontFamily}`;
+    const measuredWidth = context.measureText(timeString).width;
+    const fontSize = Math.max(
+      12,
+      Math.min(
+        preferredFontSize,
+        height * 0.78,
+        measuredWidth > 0 ? preferredFontSize * ((width * 0.94) / measuredWidth) : preferredFontSize
+      )
+    );
 
     context.save();
     context.setTransform(1, 0, 0, 1, 0, 0);
@@ -431,8 +499,8 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.filter = `blur(${Math.max(2, fontSize * 0.035)}px)`;
-    context.font = `${this.getFontWeight()} ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-    context.fillText(this._timeString || '00:00', width / 2, height / 2);
+    context.font = `${this.getFontWeight()} ${fontSize}px ${fontFamily}`;
+    context.fillText(timeString, width / 2, height / 2);
     context.restore();
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -457,14 +525,23 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     return (2.6 + this.getClockScale() * 1.15) * rem;
   }
 
+  private getEmptyTimeString() {
+    if (this.getHourFormat() === '12') {
+      return this.getShowSeconds() ? '12:00:00 AM' : '12:00 AM';
+    }
+
+    return this.getShowSeconds() ? '00:00:00' : '00:00';
+  }
+
   protected renderCard() {
     return html`
       <ha-card
-        class="clock-card liquid-clock-card"
-        style="--dihor-clock-scale: ${this.getClockScale()}; --dihor-clock-font-weight: ${this.getFontWeight()};"
+        class="clock-card liquid-clock-card ${this.getShowSeconds() ? 'has-seconds' : ''}"
+        style="--dihor-clock-scale: ${this.getClockScale()}; --dihor-clock-font-weight: ${this.getFontWeight()}; --dihor-clock-contrast: ${this.getContrast()};"
       >
         <canvas class="liquid-clock-canvas" aria-hidden="true"></canvas>
         <div class="clock-overlay" aria-label=${this._timeString}>
+          <div class="time-contrast" aria-hidden="true">${this._timeString}</div>
           <div class="time-display ${this._webglAvailable ? 'webgl-time' : ''}">
             ${this._timeString}
           </div>
@@ -497,6 +574,17 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     return ClockCard.normalizeFontWeight(this._config?.font_weight);
   }
 
+  private getHourFormat() {
+    return ClockCard.normalizeHourFormat(this._config?.hour_format);
+  }
+
+  private getShowSeconds() {
+    return ClockCard.normalizeBoolean(
+      this._config?.show_seconds,
+      DEFAULT_CLOCK_CONFIG.show_seconds
+    );
+  }
+
   private getRefraction() {
     return ClockCard.normalizeNumber(
       this._config?.refraction,
@@ -523,6 +611,10 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     return ClockCard.normalizeNumber(this._config?.specular, 0, 3, DEFAULT_CLOCK_CONFIG.specular);
   }
 
+  private getContrast() {
+    return ClockCard.normalizeNumber(this._config?.contrast, 0, 1, DEFAULT_CLOCK_CONFIG.contrast);
+  }
+
   private static normalizeSize(size: unknown): number {
     if (size === undefined || size === null || size === '') return 2;
     const numericSize = Number(size);
@@ -536,6 +628,22 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
       return numericFontWeight;
     }
     return DEFAULT_CLOCK_CONFIG.font_weight;
+  }
+
+  private static normalizeHourFormat(hourFormat: unknown): ClockHourFormat {
+    if (hourFormat === '12' || hourFormat === 12) return '12';
+    if (hourFormat === '24' || hourFormat === 24) return '24';
+    return DEFAULT_CLOCK_CONFIG.hour_format;
+  }
+
+  private static normalizeBoolean(value: unknown, fallback: boolean): boolean {
+    if (value === undefined || value === null || value === '') return fallback;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      if (value.toLowerCase() === 'true') return true;
+      if (value.toLowerCase() === 'false') return false;
+    }
+    return Boolean(value);
   }
 
   private static normalizeNumber(
@@ -557,12 +665,20 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     ClockCard.validateNumber('bevel_depth', config.bevel_depth, 0.5, 3);
     ClockCard.validateNumber('frost', config.frost, 0, 1);
     ClockCard.validateNumber('specular', config.specular, 0, 3);
+    ClockCard.validateNumber('contrast', config.contrast, 0, 1);
 
     if (
       config.font_weight !== undefined &&
       ClockCard.normalizeFontWeight(config.font_weight) !== Number(config.font_weight)
     ) {
       throw new Error('font_weight must be one of: 400, 700, 900');
+    }
+
+    if (
+      config.hour_format !== undefined &&
+      String(config.hour_format) !== ClockCard.normalizeHourFormat(config.hour_format)
+    ) {
+      throw new Error('hour_format must be one of: 12, 24');
     }
   }
 
