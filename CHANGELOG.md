@@ -1,3 +1,10 @@
+# [4.4.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.3.0...v4.4.0) (2026-05-19)
+
+
+### Features
+
+* add clock display options ([99ac4fb](https://github.com/PawelWielga/dihor-glass-cards/commit/99ac4fbdb07d0101c69e4e1ca1ab344a29a6ebf2))
+
 # [4.3.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.2.2...v4.3.0) (2026-05-19)
 
 
