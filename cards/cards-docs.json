@@ -35,8 +35,8 @@
       "css": "dihor-clock-card.css"
     },
     "subtitle": {
-      "pl": "Cyfrowy zegar",
-      "en": "Simple digital clock"
+      "pl": "Zegar cyfrowy liquid glass",
+      "en": "Liquid glass digital clock"
     },
     "usage": [
       {
@@ -46,6 +46,26 @@
       {
         "key": "size",
         "value": "2"
+      },
+      {
+        "key": "font_weight",
+        "value": 700
+      },
+      {
+        "key": "refraction",
+        "value": 0.05
+      },
+      {
+        "key": "bevel_depth",
+        "value": 1.5
+      },
+      {
+        "key": "frost",
+        "value": 0.2
+      },
+      {
+        "key": "specular",
+        "value": 1.2
       }
     ]
   },
