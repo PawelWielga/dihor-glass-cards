@@ -1,3 +1,10 @@
+## [4.4.2](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.1...v4.4.2) (2026-05-19)
+
+
+### Bug Fixes
+
+* stabilize clock seconds rendering ([e3d908e](https://github.com/PawelWielga/dihor-glass-cards/commit/e3d908ed491e21e7e4b8529c1fab935685a74fb0))
+
 ## [4.4.1](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.0...v4.4.1) (2026-05-19)
 
 
