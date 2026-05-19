@@ -84,10 +84,12 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
   @state() private _timeString: string = '';
   @state() private _webglAvailable = true;
 
-  private _interval?: number;
+  private _clockTimer?: number;
   private _animationFrame?: number;
   private _resizeObserver?: ResizeObserver;
   private _canvas?: HTMLCanvasElement;
+  private _contrastCanvas?: HTMLCanvasElement;
+  private _contrastContext?: CanvasRenderingContext2D;
   private _heightmapCanvas?: HTMLCanvasElement;
   private _heightmapContext?: CanvasRenderingContext2D;
   private _gl?: WebGL2RenderingContext;
@@ -282,7 +284,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    if (this._interval) window.clearInterval(this._interval);
+    if (this._clockTimer) window.clearTimeout(this._clockTimer);
     if (this._animationFrame) window.cancelAnimationFrame(this._animationFrame);
     this._resizeObserver?.disconnect();
   }
@@ -295,26 +297,49 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   protected updated(changedProperties: PropertyValues) {
     super.updated(changedProperties);
-    if (changedProperties.has('_timeString') || changedProperties.has('_config')) {
+    if (changedProperties.has('_config')) {
+      this.startClock();
+      return;
+    }
+
+    if (changedProperties.has('_timeString')) {
       this.drawHeightmap();
     }
   }
 
   private startClock() {
     this.updateTime();
-    if (this._interval) window.clearInterval(this._interval);
-    this._interval = window.setInterval(() => this.updateTime(), 1000);
+    if (this._clockTimer) window.clearTimeout(this._clockTimer);
+    this.scheduleNextClockTick();
+  }
+
+  private scheduleNextClockTick() {
+    const now = new Date();
+    const delay = this.getShowSeconds()
+      ? 1000 - now.getMilliseconds() + 20
+      : (60 - now.getSeconds()) * 1000 - now.getMilliseconds() + 20;
+
+    this._clockTimer = window.setTimeout(
+      () => {
+        this.updateTime();
+        this.scheduleNextClockTick();
+      },
+      Math.max(250, delay)
+    );
   }
 
   private updateTime() {
     const now = new Date();
     const showSeconds = this.getShowSeconds();
-    this._timeString = now.toLocaleTimeString([], {
+    const nextTimeString = now.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
       second: showSeconds ? '2-digit' : undefined,
       hour12: this.getHourFormat() === '12',
     });
+
+    if (nextTimeString === this._timeString) return;
+    this._timeString = nextTimeString;
     this.drawHeightmap();
   }
 
@@ -324,11 +349,14 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
     this._canvas =
       this.renderRoot.querySelector<HTMLCanvasElement>('.liquid-clock-canvas') ?? undefined;
+    this._contrastCanvas =
+      this.renderRoot.querySelector<HTMLCanvasElement>('.time-contrast') ?? undefined;
+    this._contrastContext = this._contrastCanvas?.getContext('2d') ?? undefined;
     if (!this._canvas) return;
 
     if (!this._gl && !this.initLiquidClock()) return;
     this.resizeLiquidClock();
-    this._animationFrame = window.requestAnimationFrame(() => this.renderLiquidClock());
+    this.scheduleLiquidClockRender();
   }
 
   private initLiquidClock() {
@@ -421,6 +449,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
   private resizeLiquidClock() {
     const canvas = this._canvas;
+    const contrastCanvas = this._contrastCanvas;
     const heightmapCanvas = this._heightmapCanvas;
     const gl = this._gl;
     if (!canvas || !heightmapCanvas || !gl) return;
@@ -434,10 +463,23 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
 
     canvas.width = width;
     canvas.height = height;
+    if (contrastCanvas) {
+      contrastCanvas.width = width;
+      contrastCanvas.height = height;
+    }
     heightmapCanvas.width = width;
     heightmapCanvas.height = height;
     gl.viewport(0, 0, width, height);
     this.drawHeightmap();
+  }
+
+  private scheduleLiquidClockRender() {
+    if (this._animationFrame) return;
+
+    this._animationFrame = window.requestAnimationFrame(() => {
+      this._animationFrame = undefined;
+      this.renderLiquidClock();
+    });
   }
 
   private renderLiquidClock() {
@@ -445,10 +487,7 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     const program = this._program;
     const heightmapTexture = this._heightmapTexture;
     const canvas = this._canvas;
-    if (!gl || !program || !heightmapTexture || !canvas) {
-      this._animationFrame = undefined;
-      return;
-    }
+    if (!gl || !program || !heightmapTexture || !canvas) return;
 
     gl.useProgram(program);
     gl.clearColor(0, 0, 0, 0);
@@ -463,13 +502,13 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     gl.bindTexture(gl.TEXTURE_2D, heightmapTexture);
     gl.uniform1i(this.getUniform('u_heightmap'), 0);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-    this._animationFrame = window.requestAnimationFrame(() => this.renderLiquidClock());
   }
 
   private drawHeightmap() {
     const canvas = this._heightmapCanvas;
     const context = this._heightmapContext;
+    const contrastCanvas = this._contrastCanvas;
+    const contrastContext = this._contrastContext;
     const gl = this._gl;
     const texture = this._heightmapTexture;
     if (!canvas || !context || !gl || !texture || canvas.width <= 1 || canvas.height <= 1) return;
@@ -481,9 +520,10 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     const fontFamily =
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
     const timeString = this._timeString || this.getEmptyTimeString();
+    const measureString = this.getMeasureTimeString();
 
     context.font = `${this.getFontWeight()} ${preferredFontSize}px ${fontFamily}`;
-    const measuredWidth = context.measureText(timeString).width;
+    const measuredWidth = context.measureText(measureString).width;
     const fontSize = Math.max(
       12,
       Math.min(
@@ -494,21 +534,91 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     );
     this.style.setProperty('--dihor-clock-rendered-font-size', `${fontSize}px`);
 
+    this.drawClockTextMask(context, canvas, {
+      dpr,
+      width,
+      height,
+      fontSize,
+      fontFamily,
+      timeString,
+    });
+
+    if (contrastCanvas && contrastContext) {
+      this.drawClockTextContrast(contrastContext, contrastCanvas, {
+        dpr,
+        width,
+        height,
+        fontSize,
+        fontFamily,
+        timeString,
+      });
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+    this.scheduleLiquidClockRender();
+  }
+
+  private drawClockTextMask(
+    context: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    options: {
+      dpr: number;
+      width: number;
+      height: number;
+      fontSize: number;
+      fontFamily: string;
+      timeString: string;
+    }
+  ) {
     context.save();
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.fillStyle = 'black';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.scale(dpr, dpr);
+    context.scale(options.dpr, options.dpr);
     context.fillStyle = 'white';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.filter = `blur(${Math.max(2, fontSize * 0.035)}px)`;
-    context.font = `${this.getFontWeight()} ${fontSize}px ${fontFamily}`;
-    context.fillText(timeString, width / 2, height / 2);
+    context.filter = `blur(${Math.max(2, options.fontSize * 0.035)}px)`;
+    context.font = `${this.getFontWeight()} ${options.fontSize}px ${options.fontFamily}`;
+    context.fillText(options.timeString, options.width / 2, options.height / 2);
     context.restore();
+  }
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+  private drawClockTextContrast(
+    context: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    options: {
+      dpr: number;
+      width: number;
+      height: number;
+      fontSize: number;
+      fontFamily: string;
+      timeString: string;
+    }
+  ) {
+    const channel = this.getTimeContrastChannel();
+    const color = `rgb(${channel}, ${channel}, ${channel})`;
+
+    context.save();
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.scale(options.dpr, options.dpr);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.font = `${this.getFontWeight()} ${options.fontSize}px ${options.fontFamily}`;
+    context.lineJoin = 'round';
+    context.lineWidth = Math.max(1, options.fontSize * 0.016);
+    context.strokeStyle = color;
+    context.fillStyle = color;
+    context.globalAlpha = 0.24;
+    context.shadowColor = 'rgba(0, 0, 0, 0.22)';
+    context.shadowBlur = Math.max(4, options.fontSize * 0.12);
+    context.shadowOffsetY = Math.max(1, options.fontSize * 0.04);
+    context.strokeText(options.timeString, options.width / 2, options.height / 2);
+    context.globalAlpha = 0.16;
+    context.fillText(options.timeString, options.width / 2, options.height / 2);
+    context.restore();
   }
 
   private getUniform(name: string) {
@@ -537,15 +647,23 @@ export class ClockCard extends BaseDihorCard<ClockCardConfig> {
     return this.getShowSeconds() ? '00:00:00' : '00:00';
   }
 
+  private getMeasureTimeString() {
+    if (this.getHourFormat() === '12') {
+      return this.getShowSeconds() ? '88:88:88 PM' : '88:88 PM';
+    }
+
+    return this.getShowSeconds() ? '88:88:88' : '88:88';
+  }
+
   protected renderCard() {
     return html`
       <ha-card
         class="clock-card liquid-clock-card ${this.getShowSeconds() ? 'has-seconds' : ''}"
         style="--dihor-clock-scale: ${this.getClockScale()}; --dihor-clock-font-weight: ${this.getFontWeight()}; --dihor-clock-time-contrast-channel: ${this.getTimeContrastChannel()};"
       >
+        <canvas class="time-contrast" aria-hidden="true"></canvas>
         <canvas class="liquid-clock-canvas" aria-hidden="true"></canvas>
         <div class="clock-overlay" aria-label=${this._timeString}>
-          <div class="time-contrast" aria-hidden="true">${this._timeString}</div>
           <div class="time-display ${this._webglAvailable ? 'webgl-time' : ''}">
             ${this._timeString}
           </div>
