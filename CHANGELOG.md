@@ -1,3 +1,10 @@
+## [4.4.3](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.2...v4.4.3) (2026-05-19)
+
+
+### Bug Fixes
+
+* rename time_contrast_color to contrast, add border-radius clipping, update defaults ([7e933f7](https://github.com/PawelWielga/dihor-glass-cards/commit/7e933f7f95a29169c73f415d67ff07b744257242))
+
 ## [4.4.2](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.1...v4.4.2) (2026-05-19)
 
 
