@@ -30,6 +30,10 @@
           {
             "path": "dist/dihor-glass-cards.js",
             "label": "Dihor Glass Cards Bundle"
+          },
+          {
+            "path": "icon.png",
+            "label": "Dihor Glass Cards Icon"
           }
         ]
       }
