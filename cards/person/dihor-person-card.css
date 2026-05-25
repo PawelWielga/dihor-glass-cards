@@ -14,7 +14,7 @@
 
 .person-card-content {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: var(--dihor-person-avatar-size, var(--dihor-avatar-size)) minmax(0, 1fr);
   align-items: stretch;
   justify-content: stretch;
   gap: var(--dihor-content-gap);
@@ -34,7 +34,7 @@
 
 .person-avatar-column {
   display: grid;
-  align-items: stretch;
+  align-items: center;
   justify-items: start;
   height: 100%;
 }
@@ -65,10 +65,10 @@
   position: relative;
   display: inline-flex;
   flex: 0 0 auto;
-  width: auto;
-  height: 100%;
+  width: var(--dihor-person-avatar-size, var(--dihor-avatar-size));
+  height: var(--dihor-person-avatar-size, var(--dihor-avatar-size));
   aspect-ratio: 1;
-  min-height: var(--dihor-avatar-size);
+  max-width: 100%;
 }
 
 .person-avatar {
@@ -169,12 +169,17 @@
   color: var(--dihor-badge-online-bg);
 }
 
-.person-phone ha-icon,
+.person-phone-icon,
 .person-battery ha-icon {
   flex: 0 0 auto;
   --mdc-icon-size: 17px;
   width: 17px;
   height: 17px;
+}
+
+.person-phone-platform-icon {
+  display: block;
+  fill: currentColor;
 }
 
 .person-phone span,
@@ -198,8 +203,12 @@
 }
 
 @media (max-width: 360px) {
+  .person-card {
+    --dihor-person-avatar-size: 58px;
+  }
+
   .person-card-content {
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: var(--dihor-person-avatar-size) minmax(0, 1fr);
   }
 
   .person-device-row {

@@ -122,6 +122,10 @@
         "value": "android"
       },
       {
+        "key": "phone_icon",
+        "value": "android"
+      },
+      {
         "key": "battery_entity",
         "value": "sensor.tomek_phone_battery_level"
       },
@@ -251,6 +255,10 @@
           },
           {
             "key": "phone_platform",
+            "value": "iphone"
+          },
+          {
+            "key": "phone_icon",
             "value": "iphone"
           },
           {

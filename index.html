@@ -8,38 +8,15 @@
   <link rel="stylesheet" href="index.css" />
   <link rel="stylesheet" href="cards/theme.css" />
   <link rel="stylesheet" href="cards/core.css" />
+  <link rel="stylesheet" href="cards/clock/dihor-clock-card.css" />
+  <link rel="stylesheet" href="cards/person/dihor-person-card.css" />
+  <link rel="stylesheet" href="cards/toggle-button/dihor-toggle-button-card.css" />
+  <link rel="stylesheet" href="cards/minecraft/dihor-minecraft-card.css" />
 
   <!-- Dodanie czcionki ROBOTO -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
 
-  <!-- Dołączenie CSS komponentów -->
   <script>
-    const basePath = './cards';
-    const manifestPath = `${basePath}/cards-docs.json`;
-    window.__cardsBasePath = basePath;
-    window.__cardsManifestPromise = fetch(manifestPath)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Nie udało się pobrać manifestu kart');
-        }
-        return response.json();
-      })
-      .catch((error) => {
-        console.warn('cards-docs.json fetch failed:', error);
-        return [];
-      });
-
-    window.__cardsManifestPromise.then((cards) => {
-      cards.forEach((card) => {
-        if (card.preview && card.preview.css) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = `${basePath}/${card.folder}/${card.preview.css}`;
-          document.head.appendChild(link);
-        }
-      });
-    });
-
     // Custom element shim for hui-view if not defined
     if (!customElements.get('hui-view')) {
       class HuiView extends HTMLElement { }
@@ -66,8 +43,11 @@
           const paths = {
             'mdi:fan': 'M12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2m.5-9c2.8 0 4.5 2.2 3.6 4.9-.4 1.4-1.7 3.1-3.1 4h-.1c-.4-.9-.9-3.1-.6-5 .2-1.2.2-2.5-.3-3.9h.5m-8.1 4.8c1.4-2.4 4.2-2.9 6.1-.8 1 1 1.7 3.1 1.7 4.7v.1c-1 .1-3.2-.5-4.7-1.7-1-.8-2.1-1.4-3.6-1.6l.5-.7M2.5 16.2c-1.4-2.4-.4-5.1 2.3-5.7 1.4-.4 3.5 0 4.9.8h.1c-.5.8-2.2 2.4-4 3.1-1.2.5-2.2 1.2-3 2.5l-.3-.7m9 5.8c-2.8 0-4.5-2.2-3.6-4.9.4-1.4 1.7-3.1 3.1-4h.1c.4.9.9 3.1.6 5-.2 1.2-.2 2.5.3 3.9h-.5m8.1-4.8c-1.4 2.4-4.2 2.9-6.1.8-1-1-1.7-3.1-1.7-4.7v-.1c1-.1 3.2.5 4.7 1.7 1 .8 2.1 1.4 3.6 1.6l-.5.7m1.9-9.4c1.4 2.4.4 5.1-2.3 5.7-1.4.4-3.5 0-4.9-.8h-.1c.5-.8 2.2-2.4 4-3.1 1.2-.5 2.2-1.2 3-2.5l.3.7Z',
             'mdi:lightbulb-on-outline': 'M9 21h6v-1.5H9V21m3-19a6 6 0 0 0-3.8 10.64c.52.43.8 1.04.8 1.7V17h6v-2.66c0-.66.3-1.28.82-1.7A6 6 0 0 0 12 2m0 2a4 4 0 0 1 2.55 7.08A4.25 4.25 0 0 0 13 14.34V15h-2v-.66a4.2 4.2 0 0 0-1.53-3.25A4 4 0 0 1 12 4Z',
+            'mdi:garage': 'M19 20h-2v-6H7v6H5V9.7l7-3.1 7 3.1V20M3 20h2v-9.1l7-3.1 7 3.1V20h2V8.4L12 4 3 8.4V20m5-5h8v1.5H8V15m0 2.5h8V19H8v-1.5Z',
             'mdi:power': 'M13 3h-2v10h2V3m4.83 2.17-1.42 1.42A7 7 0 1 1 7.59 6.6L6.17 5.17A9 9 0 1 0 17.83 5.17Z',
+            'mdi:sprinkler': 'M7 22h10v-2H7v2m1.5-3h7l-.8-4.8A4 4 0 0 0 12 11a4 4 0 0 0-2.7 3.2L8.5 19M12 2a3 3 0 0 0-3 3v1H6v2h12V6h-3V5a3 3 0 0 0-3-3m-1 4V5a1 1 0 1 1 2 0v1h-2M4.2 10.4 2.8 9 1 10.8l1.4 1.4 1.8-1.8m15.6 0 1.8 1.8 1.4-1.4L21.2 9l-1.4 1.4M5.5 14.5 3 14v2l2.1.4.4-1.9m13 0 .4 1.9L21 16v-2l-2.5.5Z',
             'mdi:toggle-switch': 'M17 7H7a5 5 0 0 0 0 10h10a5 5 0 0 0 0-10m0 8H7a3 3 0 0 1 0-6h10a3 3 0 0 1 0 6m0-5.5A2.5 2.5 0 1 0 17 14a2.5 2.5 0 0 0 0-5Z',
+            'mdi:battery-70': 'M16 20H6V4h10v16m2-13h1v10h-1v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M8 17h6v-3H8v3m0-4h6v-3H8v3m0-4h6V6H8v3Z',
           };
           const path = paths[icon] || paths['mdi:toggle-switch'];
           this.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="${path}"></path></svg>`;
@@ -138,19 +118,7 @@
                 </div>
               </div>
               <p class="phone-app-title">dihor-glass-cards (test view)</p>
-              <div class="phone-cards" id="phone-cards">
-                <div class="coming-soon-section">
-                  <div class="coming-soon-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" focusable="false">
-                      <path fill="currentColor" d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.27L18.6 8 12 11.73 5.4 8 12 4.27ZM5 9.7l6 3.4v6.2l-6-3.34V9.7Zm8 9.6v-6.2l6-3.4v6.26L13 19.3Z" />
-                    </svg>
-                  </div>
-                  <div class="coming-soon-text">Kolejne komponenty wkrótce!</div>
-                  <div class="coming-soon-subtitle">
-                    Pracujemy nad nowymi kartami dla Home Assistant
-                  </div>
-                </div>
-              </div>
+              <div class="phone-cards" id="phone-cards"></div>
               <div class="phone-home-indicator"></div>
             </div>
           </hui-view>
@@ -201,8 +169,6 @@
   <script>
     const translations = {
       pl: {
-        comingSoon: 'Kolejne komponenty wkrótce!',
-        comingSoonSub: 'Pracujemy nad nowymi kartami dla Home Assistant',
         previewLabel: 'Podgląd karty',
         loading: 'Ładowanie podglądu...',
         error: 'Nie udało się załadować podglądu',
@@ -221,8 +187,6 @@
         yamlPlaceholder: 'Wybierz kartę, aby zobaczyć YAML.',
       },
       en: {
-        comingSoon: 'More components coming soon!',
-        comingSoonSub: "We're working on new Home Assistant cards",
         previewLabel: 'Card preview',
         loading: 'Loading preview...',
         error: 'Failed to load preview',
@@ -255,6 +219,95 @@
     let currentLang = localStorage.getItem('lang') || 'pl';
     let activeCard = null;
 
+    const DEMO_CARDS = [
+      {
+        id: 'clock',
+        name: 'Zegar 24h',
+        usage: [
+          { key: 'type', value: 'custom:dihor-clock-card' },
+          { key: 'hour_format', value: '24' },
+          { key: 'show_seconds', value: false },
+          { key: 'size', value: 1 },
+        ],
+      },
+      {
+        id: 'person',
+        name: 'Osoba',
+        usage: [
+          { key: 'type', value: 'custom:dihor-person-card' },
+          { key: 'entity', value: 'person.tomek' },
+          { key: 'phone_entity', value: 'device_tracker.tomek_iphone' },
+          { key: 'phone_platform', value: 'iphone' },
+          { key: 'phone_icon', value: 'iphone' },
+          { key: 'battery_entity', value: 'sensor.tomek_iphone_battery_level' },
+          { key: 'show_entity_picture', value: true },
+          { key: 'show_name', value: true },
+          { key: 'show_state', value: true },
+          { key: 'show_phone', value: true },
+          { key: 'show_battery', value: true },
+        ],
+      },
+      {
+        id: 'quick-actions',
+        name: 'Przyciski',
+        usage: [
+          { key: 'type', value: 'custom:dihor-toggle-button-card' },
+          { key: 'entity', value: 'switch.salon_lamp' },
+          { key: 'label', value: 'Salon' },
+          { key: 'icon', value: 'mdi:lightbulb-on-outline' },
+          { key: 'show_label_under', value: false },
+        ],
+        layout: 'toggle-grid',
+        variants: [
+          {
+            usage: [
+              { key: 'type', value: 'custom:dihor-toggle-button-card' },
+              { key: 'entity', value: 'switch.salon_lamp' },
+              { key: 'label', value: 'Salon' },
+              { key: 'icon', value: 'mdi:lightbulb-on-outline' },
+              { key: 'show_label_under', value: false },
+            ],
+          },
+          {
+            usage: [
+              { key: 'type', value: 'custom:dihor-toggle-button-card' },
+              { key: 'entity', value: 'switch.kitchen_led' },
+              { key: 'label', value: 'Kuchnia' },
+              { key: 'icon', value: 'mdi:power' },
+              { key: 'show_label_under', value: false },
+            ],
+          },
+          {
+            usage: [
+              { key: 'type', value: 'custom:dihor-toggle-button-card' },
+              { key: 'entity', value: 'switch.garage_gate' },
+              { key: 'label', value: 'Brama' },
+              { key: 'icon', value: 'mdi:garage' },
+              { key: 'show_label_under', value: false },
+            ],
+          },
+          {
+            usage: [
+              { key: 'type', value: 'custom:dihor-toggle-button-card' },
+              { key: 'entity', value: 'switch.garden_irrigation' },
+              { key: 'label', value: 'Ogród' },
+              { key: 'icon', value: 'mdi:sprinkler' },
+              { key: 'show_label_under', value: false },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'minecraft',
+        name: 'Minecraft',
+        usage: [
+          { key: 'type', value: 'custom:dihor-minecraft-card' },
+          { key: 'title', value: 'Survival Server' },
+          { key: 'entity_prefix', value: 'server_minecraft' },
+        ],
+      },
+    ];
+
     // --- MOCK HOME ASSISTANT OBJECT ---
     const mockHass = {
       states: {
@@ -262,24 +315,41 @@
           state: "home",
           attributes: {
             friendly_name: "Tomek",
-            entity_picture: "https://randomuser.me/api/portraits/men/32.jpg"
+            entity_picture: "https://randomuser.me/api/portraits/men/32.jpg",
+            source: "device_tracker.tomek_iphone"
           }
         },
-        "switch.living_room": {
-          state: "on",
-          attributes: { friendly_name: "Living Room Light" }
+        "device_tracker.tomek_iphone": {
+          state: "home",
+          attributes: {
+            friendly_name: "iPhone Tomka",
+            manufacturer: "Apple",
+            model: "iPhone 15",
+            battery_level: 67
+          }
         },
-        "switch.kitchen": {
+        "sensor.tomek_iphone_battery_level": {
+          state: "67",
+          attributes: {
+            friendly_name: "iPhone Tomka Battery",
+            unit_of_measurement: "%"
+          }
+        },
+        "switch.salon_lamp": {
+          state: "on",
+          attributes: { friendly_name: "Lampka salon" }
+        },
+        "switch.kitchen_led": {
           state: "off",
-          attributes: { friendly_name: "Kitchen" }
+          attributes: { friendly_name: "LED kuchnia" }
         },
-        "switch.bedroom": {
-          state: "on",
-          attributes: { friendly_name: "Fan" }
+        "switch.garage_gate": {
+          state: "off",
+          attributes: { friendly_name: "Brama" }
         },
-        "switch.scene": {
-          state: "on",
-          attributes: { friendly_name: "Scene" }
+        "switch.garden_irrigation": {
+          state: "off",
+          attributes: { friendly_name: "Podlewanie" }
         },
         // Minecraft Mock Data
         "server_minecraft_status": { state: "online" },
@@ -399,18 +469,12 @@
       }
     }
 
-    function renderCards(cards) {
+    function renderCards() {
       if (!phoneCardsContainer) return;
 
-      phoneCardsContainer
-        .querySelectorAll('.phone-card')
-        .forEach((node) => node.remove());
+      phoneCardsContainer.replaceChildren();
 
-      const comingSoon = phoneCardsContainer.querySelector(
-        '.coming-soon-section'
-      );
-
-      cards.forEach((card) => {
+      DEMO_CARDS.forEach((card) => {
         const cardElement = document.createElement('article');
         cardElement.className = 'phone-card';
         cardElement.setAttribute('data-card-id', card.id);
@@ -424,7 +488,9 @@
           : [{ usage: card.usage }];
 
         if (variants.length > 1) {
-          previewContainer.classList.add('is-variant-grid');
+          previewContainer.classList.add(
+            card.layout === 'toggle-grid' ? 'is-toggle-grid' : 'is-variant-grid'
+          );
         }
 
         variants.forEach((variant) => {
@@ -435,11 +501,7 @@
         cardElement.appendChild(previewContainer);
 
         cardElement.addEventListener('click', () => selectCard(card));
-        if (comingSoon) {
-          phoneCardsContainer.insertBefore(cardElement, comingSoon);
-        } else {
-          phoneCardsContainer.appendChild(cardElement);
-        }
+        phoneCardsContainer.appendChild(cardElement);
       });
       applyThemeToCards();
     }
@@ -461,10 +523,6 @@
           hacsStepsEl.appendChild(li);
         });
       }
-      const comingText = document.querySelector('.coming-soon-text');
-      if (comingText) comingText.textContent = t.comingSoon;
-      const comingSubtitle = document.querySelector('.coming-soon-subtitle');
-      if (comingSubtitle) comingSubtitle.textContent = t.comingSoonSub;
       updateYamlOutput(activeCard);
     }
 
@@ -505,26 +563,12 @@
         });
     }
 
-    function resolveManifestPromise() {
-      const basePath = (window.__cardsBasePath || './cards');
-      const fallbackPath = `${basePath}/cards-docs.json`;
-      return fetch(fallbackPath)
-        .then((response) => response.ok ? response.json() : [])
-        .catch(() => []);
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      window.__cardsBasePath = './cards';
-
       setupThemeToggle();
       displayDocsVersion();
-      resolveManifestPromise().then((cards) => {
-        if (cards && cards.length) {
-          renderCards(cards);
-          selectCard(cards[0]);
-        }
-        setupLanguageToggle();
-      });
+      renderCards();
+      selectCard(DEMO_CARDS[0]);
+      setupLanguageToggle();
     });
   </script>
   <script src="clock.js"></script>
