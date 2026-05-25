@@ -9,6 +9,7 @@ export interface PersonCardConfig extends BaseCardConfig {
   icon?: string;
   phone_entity?: string;
   phone_name?: string;
+  phone_icon?: string;
   phone_platform?: string;
   battery_entity?: string;
   battery_charging_entity?: string;
@@ -88,6 +89,12 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
           name: 'phone_name',
           selector: {
             text: {},
+          },
+        },
+        {
+          name: 'phone_icon',
+          selector: {
+            icon: {},
           },
         },
         {
@@ -206,6 +213,8 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
             return 'Phone Entity';
           case 'phone_name':
             return 'Phone Name';
+          case 'phone_icon':
+            return 'Phone Icon';
           case 'phone_platform':
             return 'Phone Platform';
           case 'battery_entity':
@@ -245,6 +254,8 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
             return 'Optional phone/device entity linked to this person';
           case 'phone_name':
             return 'Optional custom phone label';
+          case 'phone_icon':
+            return 'Optional icon override, for example mdi:cellphone or mdi:tablet';
           case 'phone_platform':
             return 'Auto, Android or iPhone';
           case 'battery_entity':
@@ -402,7 +413,8 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
       this._config.phone_entity || (state.attributes.source as string | undefined);
     const phoneState = phoneEntityId ? this.hass.states[phoneEntityId] : undefined;
     const phoneName = this.getPhoneName(phoneEntityId, phoneState);
-    const phoneIcon = this.getPhoneIcon(phoneState);
+    const phonePlatform = this.getPhonePlatform(phoneState, phoneEntityId);
+    const phoneIcon = this.getPhoneIcon(phonePlatform);
     const batteryText = this.getBatteryText(state, phoneState);
     const location = this.formatLocation(state.state);
     const statusClass = this.getStatusClass(state.state);
@@ -444,7 +456,7 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
               ${showState ? html`<div class="person-location">${location}</div>` : nothing}
               ${showPhone && phoneName
                 ? html`<div class="person-phone">
-                    <ha-icon icon="${phoneIcon}"></ha-icon>
+                    ${this.renderPhoneIcon(phoneIcon)}
                     <span>${phoneName}</span>
                   </div>`
                 : nothing}
@@ -497,32 +509,70 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
     return phoneState?.attributes?.friendly_name || phoneEntityId.replace(/^.*\./, '');
   }
 
-  private getPhoneIcon(phoneState: { state: string; attributes: Record<string, any> } | undefined) {
-    const platform = this.getPhonePlatform(phoneState);
-    if (platform === 'android') return 'mdi:android';
-    if (platform === 'iphone' || platform === 'ios') return 'mdi:cellphone-iphone';
+  private getPhoneIcon(platform: string | undefined) {
+    const configuredIcon = this.normalizePhoneIcon(this._config.phone_icon);
+    if (configuredIcon) return configuredIcon;
+
+    if (platform === 'android') return 'dihor:android';
+    if (platform === 'iphone' || platform === 'ios') return 'dihor:iphone';
     return 'mdi:cellphone';
   }
 
+  private normalizePhoneIcon(icon: string | undefined) {
+    const normalized = icon?.trim();
+    if (!normalized) return undefined;
+
+    const lower = normalized.toLowerCase();
+    if (lower === 'android' || lower === 'dihor:android') return 'dihor:android';
+    if (['iphone', 'ios', 'apple', 'dihor:iphone'].includes(lower)) return 'dihor:iphone';
+
+    return normalized;
+  }
+
   private getPhonePlatform(
-    phoneState: { state: string; attributes: Record<string, any> } | undefined
+    phoneState: { state: string; attributes: Record<string, any> } | undefined,
+    phoneEntityId?: string
   ) {
     const configured = this._config.phone_platform?.toLowerCase();
     if (configured && configured !== 'auto') return configured;
 
     const text = [
+      phoneEntityId,
       phoneState?.attributes?.platform,
       phoneState?.attributes?.os_name,
       phoneState?.attributes?.os_version,
+      phoneState?.attributes?.operating_system,
       phoneState?.attributes?.manufacturer,
       phoneState?.attributes?.model,
       phoneState?.attributes?.friendly_name,
+      phoneState?.attributes?.app_name,
     ]
       .filter(Boolean)
       .join(' ')
       .toLowerCase();
 
-    if (text.includes('android')) return 'android';
+    if (
+      [
+        'android',
+        'pixel',
+        'samsung',
+        'galaxy',
+        'xiaomi',
+        'redmi',
+        'oneplus',
+        'oppo',
+        'realme',
+        'huawei',
+        'honor',
+        'motorola',
+        'moto ',
+        'sony',
+        'nothing phone',
+      ].some((marker) => text.includes(marker))
+    ) {
+      return 'android';
+    }
+
     if (
       text.includes('iphone') ||
       text.includes('ios') ||
@@ -533,6 +583,30 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
     }
 
     return undefined;
+  }
+
+  private renderPhoneIcon(icon: string) {
+    if (icon === 'dihor:android') {
+      return html`<svg
+        class="person-phone-icon person-phone-platform-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path d="M8.2 4.2 6.7 2.7 5.7 3.7 7.4 5.4A6 6 0 0 0 6 9.2V15c0 .8.6 1.4 1.4 1.4h.4V20h1.7v-3.6h5V20h1.7v-3.6h.4c.8 0 1.4-.6 1.4-1.4V9.2a6 6 0 0 0-1.4-3.8l1.7-1.7-1-1-1.5 1.5A6.4 6.4 0 0 0 12 3a6.4 6.4 0 0 0-3.8 1.2ZM8 9.2a4 4 0 0 1 8 0v.2H8v-.2Zm0 2h8v3.4H8v-3.4Zm2.1-4.1a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6Zm3.8 0a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6Z" />
+      </svg>`;
+    }
+
+    if (icon === 'dihor:iphone') {
+      return html`<svg
+        class="person-phone-icon person-phone-platform-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path d="M8.7 2.6h6.6c1 0 1.9.8 1.9 1.9v15c0 1-.8 1.9-1.9 1.9H8.7c-1 0-1.9-.8-1.9-1.9v-15c0-1 .8-1.9 1.9-1.9Zm0 1.7c-.1 0-.2.1-.2.2v15c0 .1.1.2.2.2h6.6c.1 0 .2-.1.2-.2v-15c0-.1-.1-.2-.2-.2h-1.1l-.4.8h-3.6l-.4-.8H8.7Zm2.1 13.5h2.4v1.1h-2.4v-1.1Z" />
+      </svg>`;
+    }
+
+    return html`<ha-icon class="person-phone-icon" icon="${icon}"></ha-icon>`;
   }
 
   private getBatteryText(

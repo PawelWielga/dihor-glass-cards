@@ -88,6 +88,7 @@ type: custom:dihor-person-card
 entity: person.tomek
 phone_entity: device_tracker.tomek_phone
 phone_platform: android
+phone_icon: android
 battery_entity: sensor.tomek_phone_battery_level
 battery_charging_entity: binary_sensor.tomek_phone_is_charging
 show_entity_picture: true
@@ -104,6 +105,10 @@ tap_action:
 PL: `phone_entity` jest opcjonalne. Jeśli go nie podasz, karta spróbuje użyć atrybutu `source` z encji `person`. `phone_platform` może być `auto`, `android` albo `iphone`. `battery_entity` może wskazywać sensor baterii telefonu; bez niego karta spróbuje odczytać `battery_level` lub `battery` z encji osoby albo telefonu. `battery_charging_entity` może wskazywać encję ze stanem ładowania.
 
 EN: `phone_entity` is optional. If you do not set it, the card tries to use the `source` attribute from the `person` entity. `phone_platform` can be `auto`, `android`, or `iphone`. `battery_entity` can point to a phone battery sensor; without it, the card tries to read `battery_level` or `battery` from the person or phone entity. `battery_charging_entity` can point to an entity with the charging state.
+
+PL: `phone_icon` pozwala recznie wymusic ikone telefonu, na przyklad `android`, `iphone`, `mdi:cellphone` albo `mdi:tablet`. Gdy pole jest puste, karta probuje wykryc typ telefonu automatycznie.
+
+EN: `phone_icon` lets you manually force the phone icon, for example `android`, `iphone`, `mdi:cellphone`, or `mdi:tablet`. When it is empty, the card tries to detect the phone type automatically.
 
 ## Dopasowanie do dashboardu / Dashboard Fit
 
