@@ -1,3 +1,10 @@
+# [4.5.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.3...v4.5.0) (2026-05-25)
+
+
+### Features
+
+* **person:** add phone icon override and curated demo ([0816ee9](https://github.com/PawelWielga/dihor-glass-cards/commit/0816ee9f6d8e264b129a1654ec2af0ebf6fdd8f8))
+
 ## [4.4.3](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.2...v4.4.3) (2026-05-19)
 
 
