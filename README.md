@@ -154,13 +154,9 @@ PL: Jeśli ustawisz `app_icon_source: play_store`, karta rozpozna wartości taki
 
 EN: If you set `app_icon_source: play_store`, the card detects values like `com.spotify.music` or `com.google.android.youtube` as package IDs and uses the optional Home Assistant helper at `icon_resolver_url` to resolve them into Google Play icon URLs. The helper stores final icon URLs in `.storage/dihor_glass_cards_app_icons` for 30 days, so Google Play is not fetched on every dashboard refresh. If the helper is not installed or returns an error, the card falls back to `app_icons` or `default_app_icon`. If your integration shows an app name instead of a package ID, you can still use `app_package_ids`.
 
-PL: Opcjonalny helper skopiuj do katalogu Home Assistant jako `custom_components/dihor_glass_cards_icon_cache/`, uruchom ponownie Home Assistant i dodaj do `configuration.yaml`:
+PL: Helper do trybu `play_store` jest osobną integracją HACS: `dihor-ha-tv-remote-card-helper`. Dodaj repo jako custom repository typu `Integration`, zainstaluj, zrestartuj Home Assistant i dodaj `Dihor TV Remote Card Helper` w `Settings -> Devices & services`. Nie trzeba nic dopisywać do `configuration.yaml`.
 
-EN: To use the optional helper, copy it into Home Assistant as `custom_components/dihor_glass_cards_icon_cache/`, restart Home Assistant, and add this to `configuration.yaml`:
-
-```yaml
-dihor_glass_cards_icon_cache:
-```
+EN: The `play_store` helper is a separate HACS integration: `dihor-ha-tv-remote-card-helper`. Add that repository as a custom repository of type `Integration`, install it, restart Home Assistant, and add `Dihor TV Remote Card Helper` in `Settings -> Devices & services`. You do not need to edit `configuration.yaml`.
 
 ## Dopasowanie do dashboardu / Dashboard Fit
 
