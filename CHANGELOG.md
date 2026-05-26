@@ -1,3 +1,15 @@
+# [4.6.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.5.0...v4.6.0) (2026-05-26)
+
+
+### Bug Fixes
+
+* **person:** show battery next to phone name ([71333e8](https://github.com/PawelWielga/dihor-glass-cards/commit/71333e8b605de0db3ef37a49c6b5c4981a3739a9))
+
+
+### Features
+
+* add tv remote card with app icon resolver ([42990de](https://github.com/PawelWielga/dihor-glass-cards/commit/42990de67a75432eecddc97ef8e7a87e45c62b1c))
+
 # [4.5.0](https://github.com/PawelWielga/dihor-glass-cards/compare/v4.4.3...v4.5.0) (2026-05-25)
 
 
