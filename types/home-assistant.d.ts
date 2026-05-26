@@ -13,6 +13,11 @@ export interface HomeAssistant {
     service: string,
     serviceData?: Record<string, any>
   ): Promise<void>;
+  callApi?<T>(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    path: string,
+    parameters?: Record<string, any>
+  ): Promise<T>;
 }
 
 export interface LovelaceGridOptions {

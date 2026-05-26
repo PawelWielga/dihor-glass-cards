@@ -32,6 +32,12 @@ PL: Duży przycisk do sterowania pojedynczą encją, na przykład światłem, pr
 
 EN: A large button for controlling a single entity, such as a light, switch, or scene.
 
+### `dihor-tv-remote-card`
+
+PL: Kompaktowy pilot TV dla encji `media_player` z ikoną aktualnej aplikacji.
+
+EN: A compact TV remote for a `media_player` entity with the current app icon.
+
 ## Instalacja przez HACS / HACS Installation
 
 PL:
@@ -109,6 +115,52 @@ EN: `phone_entity` is optional. If you do not set it, the card tries to use the 
 PL: `phone_icon` pozwala recznie wymusic ikone telefonu, na przyklad `android`, `iphone`, `mdi:cellphone` albo `mdi:tablet`. Gdy pole jest puste, karta probuje wykryc typ telefonu automatycznie.
 
 EN: `phone_icon` lets you manually force the phone icon, for example `android`, `iphone`, `mdi:cellphone`, or `mdi:tablet`. When it is empty, the card tries to detect the phone type automatically.
+
+### TV Remote
+
+```yaml
+type: custom:dihor-tv-remote-card
+entity: media_player.living_room_tv
+name: Salon TV
+app_icons:
+  Netflix: mdi:netflix
+  YouTube: mdi:youtube
+  Disney+: mdi:movie-open
+  Nova Video Player: https://play-lh.googleusercontent.com/e8Bx0rLVoLdeCxnKlicIfAGaCKCOhhFxKSM2H8RlQzGeX9A4VvVa0A6vexKhVBNk3MM=w240-h480
+app_icon_source: play_store
+icon_resolver_url: /api/dihor-glass-cards/play-icon
+app_domains:
+  Netflix: netflix.com
+  YouTube: youtube.com
+  Disney+: disneyplus.com
+default_app_icon: mdi:television
+show_name: true
+show_mute: true
+```
+
+PL: Karta steruje telewizorem przez standardowe usługi `media_player`: włącz/wyłącz, głośniej/ciszej, następny/poprzedni program oraz mute. Ikona aplikacji jest dobierana z mapy `app_icons` na podstawie atrybutów `app_name`, `source` albo `media_title`.
+
+EN: The card controls the TV through standard `media_player` services: power, volume up/down, next/previous program, and mute. The app icon is selected from the `app_icons` map using `app_name`, `source`, or `media_title` attributes.
+
+PL: Jeśli ustawisz `app_icon_source: google_favicon`, karta spróbuje pobrać ikonę z Google Favicon na podstawie domen z `app_domains`. Gdy domena nie jest skonfigurowana albo obraz nie załaduje się, użyje lokalnej ikony z `app_icons` lub `default_app_icon`.
+
+EN: If you set `app_icon_source: google_favicon`, the card tries to load the icon from Google Favicon using domains from `app_domains`. If the domain is not configured or the image does not load, it falls back to the local `app_icons` value or `default_app_icon`.
+
+PL: `app_icons` może zawierać zarówno ikony `mdi:*`, jak i bezpośrednie URL-e obrazów, na przykład adres `play-lh.googleusercontent.com` skopiowany z Google Play.
+
+EN: `app_icons` can contain both `mdi:*` icons and direct image URLs, for example a `play-lh.googleusercontent.com` address copied from Google Play.
+
+PL: Jeśli ustawisz `app_icon_source: play_store`, karta rozpozna wartości takie jak `com.spotify.music` albo `com.google.android.youtube` jako package id i użyje opcjonalnego helpera Home Assistant pod adresem `icon_resolver_url`, żeby rozwiązać je na URL ikony Google Play. Helper zapisuje finalne URL-e ikon w `.storage/dihor_glass_cards_app_icons` na 30 dni, więc Google Play nie jest pobierany przy każdym odświeżeniu dashboardu. Gdy helper nie jest zainstalowany albo zwróci błąd, karta wraca do `app_icons` lub `default_app_icon`. Jeśli Twoja integracja pokazuje nazwę aplikacji zamiast package id, możesz nadal użyć `app_package_ids`.
+
+EN: If you set `app_icon_source: play_store`, the card detects values like `com.spotify.music` or `com.google.android.youtube` as package IDs and uses the optional Home Assistant helper at `icon_resolver_url` to resolve them into Google Play icon URLs. The helper stores final icon URLs in `.storage/dihor_glass_cards_app_icons` for 30 days, so Google Play is not fetched on every dashboard refresh. If the helper is not installed or returns an error, the card falls back to `app_icons` or `default_app_icon`. If your integration shows an app name instead of a package ID, you can still use `app_package_ids`.
+
+PL: Opcjonalny helper skopiuj do katalogu Home Assistant jako `custom_components/dihor_glass_cards_icon_cache/`, uruchom ponownie Home Assistant i dodaj do `configuration.yaml`:
+
+EN: To use the optional helper, copy it into Home Assistant as `custom_components/dihor_glass_cards_icon_cache/`, restart Home Assistant, and add this to `configuration.yaml`:
+
+```yaml
+dihor_glass_cards_icon_cache:
+```
 
 ## Dopasowanie do dashboardu / Dashboard Fit
 

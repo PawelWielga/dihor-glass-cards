@@ -1,0 +1,10 @@
+{
+  "domain": "dihor_glass_cards_icon_cache",
+  "name": "Dihor Glass Cards Icon Cache",
+  "codeowners": [],
+  "dependencies": ["http"],
+  "documentation": "https://github.com/PawelWielga/dihor-ha-components",
+  "integration_type": "helper",
+  "iot_class": "cloud_polling",
+  "version": "0.1.0"
+}
