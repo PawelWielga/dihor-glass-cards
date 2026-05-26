@@ -416,6 +416,7 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
     const phonePlatform = this.getPhonePlatform(phoneState, phoneEntityId);
     const phoneIcon = this.getPhoneIcon(phonePlatform);
     const batteryText = this.getBatteryText(state, phoneState);
+    const phoneBatteryText = showPhone && phoneName && showBattery ? batteryText : undefined;
     const location = this.formatLocation(state.state);
     const statusClass = this.getStatusClass(state.state);
     const changedText =
@@ -458,11 +459,26 @@ export class PersonCard extends BaseDihorCard<PersonCardConfig> {
                 ? html`<div class="person-phone">
                     ${this.renderPhoneIcon(phoneIcon)}
                     <span>${phoneName}</span>
+                    ${phoneBatteryText
+                      ? html`<span
+                          class="person-phone-battery ${phoneBatteryText.isCharging
+                            ? 'is-charging'
+                            : ''}"
+                        >
+                          <ha-icon
+                            icon="${this.getBatteryIcon(
+                              phoneBatteryText.value,
+                              phoneBatteryText.isCharging
+                            )}"
+                          ></ha-icon>
+                          <span>${phoneBatteryText.label}</span>
+                        </span>`
+                      : nothing}
                   </div>`
                 : nothing}
               ${changedText ? html`<div class="person-updated">${changedText}</div>` : nothing}
             </div>
-            ${showBattery && batteryText
+            ${showBattery && batteryText && !phoneBatteryText
               ? html`<div class="person-device-column">
                   <div class="person-device-row">
                     <div class="person-battery ${batteryText.isCharging ? 'is-charging' : ''}">

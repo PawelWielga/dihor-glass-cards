@@ -143,6 +143,7 @@
 }
 
 .person-phone,
+.person-phone-battery,
 .person-battery {
   display: inline-flex;
   align-items: center;
@@ -159,6 +160,16 @@
   justify-content: flex-start;
 }
 
+.person-phone-battery {
+  flex: 0 0 auto;
+  color: var(--dihor-title-color);
+  white-space: nowrap;
+}
+
+.person-phone-battery.is-charging {
+  color: var(--dihor-badge-online-bg);
+}
+
 .person-battery {
   justify-content: flex-start;
   color: var(--dihor-title-color);
@@ -170,6 +181,7 @@
 }
 
 .person-phone-icon,
+.person-phone-battery ha-icon,
 .person-battery ha-icon {
   flex: 0 0 auto;
   --mdc-icon-size: 17px;
@@ -183,6 +195,7 @@
 }
 
 .person-phone span,
+.person-phone-battery span,
 .person-battery span {
   min-width: 0;
   max-width: 100%;
