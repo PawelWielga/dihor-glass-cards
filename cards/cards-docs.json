@@ -467,5 +467,155 @@
         ]
       }
     ]
+  },
+  {
+    "id": "tv-remote",
+    "folder": "tv-remote",
+    "name": "dihor-tv-remote-card",
+    "icon": "mdi:television",
+    "preview": {
+      "css": "dihor-tv-remote-card.css"
+    },
+    "subtitle": {
+      "pl": "Pilot TV dla encji media_player",
+      "en": "TV remote for a media_player entity"
+    },
+    "usage": [
+      {
+        "key": "type",
+        "value": "custom:dihor-tv-remote-card"
+      },
+      {
+        "key": "entity",
+        "value": "media_player.living_room_tv"
+      },
+      {
+        "key": "name",
+        "value": "Salon TV"
+      },
+      {
+        "key": "app_icon_source",
+        "value": "play_store"
+      },
+      {
+        "key": "icon_resolver_url",
+        "value": "/api/dihor-glass-cards/play-icon"
+      },
+      {
+        "key": "app_icons",
+        "value": {
+          "Netflix": "mdi:netflix",
+          "YouTube": "mdi:youtube",
+          "Disney+": "mdi:movie-open",
+          "Nova Video Player": "https://play-lh.googleusercontent.com/e8Bx0rLVoLdeCxnKlicIfAGaCKCOhhFxKSM2H8RlQzGeX9A4VvVa0A6vexKhVBNk3MM=w240-h480"
+        }
+      },
+      {
+        "key": "app_domains",
+        "value": {
+          "Netflix": "netflix.com",
+          "YouTube": "youtube.com",
+          "Disney+": "disneyplus.com"
+        }
+      },
+      {
+        "key": "default_app_icon",
+        "value": "mdi:television"
+      },
+      {
+        "key": "show_name",
+        "value": true
+      },
+      {
+        "key": "show_mute",
+        "value": true
+      }
+    ],
+    "variants": [
+      {
+        "name": {
+          "pl": "Bez przycisku mute",
+          "en": "Without mute button"
+        },
+        "usage": [
+          {
+            "key": "type",
+            "value": "custom:dihor-tv-remote-card"
+          },
+          {
+            "key": "entity",
+            "value": "media_player.bedroom_tv"
+          },
+          {
+            "key": "show_mute",
+            "value": false
+          }
+        ]
+      },
+      {
+        "name": {
+          "pl": "Mapowanie nazw na package id",
+          "en": "Name to package ID mapping"
+        },
+        "usage": [
+          {
+            "key": "type",
+            "value": "custom:dihor-tv-remote-card"
+          },
+          {
+            "key": "entity",
+            "value": "media_player.living_room_tv"
+          },
+          {
+            "key": "app_icon_source",
+            "value": "play_store"
+          },
+          {
+            "key": "app_package_ids",
+            "value": {
+              "Nova Video Player": "org.courville.nova",
+              "Spotify": "com.spotify.music",
+              "YouTube": "com.google.android.youtube"
+            }
+          },
+          {
+            "key": "icon_resolver_url",
+            "value": "/api/dihor-glass-cards/play-icon"
+          },
+          {
+            "key": "default_app_icon",
+            "value": "mdi:television"
+          }
+        ]
+      },
+      {
+        "name": {
+          "pl": "Automatycznie z package id",
+          "en": "Automatic package ID"
+        },
+        "usage": [
+          {
+            "key": "type",
+            "value": "custom:dihor-tv-remote-card"
+          },
+          {
+            "key": "entity",
+            "value": "media_player.living_room_tv"
+          },
+          {
+            "key": "app_icon_source",
+            "value": "play_store"
+          },
+          {
+            "key": "icon_resolver_url",
+            "value": "/api/dihor-glass-cards/play-icon"
+          },
+          {
+            "key": "default_app_icon",
+            "value": "mdi:television"
+          }
+        ]
+      }
+    ]
   }
 ]
