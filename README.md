@@ -2,6 +2,10 @@
 
 ![Dihor Glass Cards](icon.png)
 
+> **PL:** To jest wersja beta, czyli wszystko już działa... dopóki akurat nie przebudowujemy połowy pomysłu. Projekt jest cały czas rozwijany, więc funkcje, konfiguracja i wygląd mogą się jeszcze zmieniać.
+>
+> **EN:** This is a beta version, which means everything works... until we decide to rebuild half the idea. The project is still under active development, so its features, configuration, and appearance may still change.
+
 PL: `dihor-glass-cards` to paczka kart do Home Assistant w stylu glass. Dodaje kilka gotowych kart Lovelace, które możesz wrzucić na dashboard bez pisania własnego kodu.
 
 EN: `dihor-glass-cards` is a glass-style Home Assistant card package. It adds ready-to-use Lovelace cards that you can place on a dashboard without writing custom code.
